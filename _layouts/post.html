@@ -11,10 +11,14 @@ layout: default
 <dialog class="image-viewer" aria-label="Enlarged blog image">
   <div class="image-viewer__toolbar">
     <a class="image-viewer__original" target="_blank" rel="noopener">Open full-size image</a>
+    <button class="image-viewer__reset" type="button">Reset zoom</button>
     <button class="image-viewer__close" type="button" autofocus aria-label="Close enlarged image">Close &times;</button>
   </div>
   <figure class="image-viewer__figure">
-    <img class="image-viewer__image" alt="">
+    <div class="image-viewer__viewport" tabindex="0" role="group" aria-label="Zoomable image" aria-describedby="image-viewer-help">
+      <img class="image-viewer__image" alt="" draggable="false">
+    </div>
+    <p class="image-viewer__help" id="image-viewer-help">Scroll to zoom. Drag to move. Keyboard: + / &minus; to zoom, 0 to reset.</p>
     <figcaption class="image-viewer__caption"></figcaption>
   </figure>
 </dialog>

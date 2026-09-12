@@ -22,7 +22,8 @@
 
 .blog-image-trigger:focus-visible,
 .image-viewer button:focus-visible,
-.image-viewer a:focus-visible {
+.image-viewer a:focus-visible,
+.image-viewer__viewport:focus-visible {
   outline: 3px solid #b5e853;
   outline-offset: 4px;
 }
@@ -33,7 +34,7 @@ html.image-viewer-open {
 
 .image-viewer {
   box-sizing: border-box;
-  width: fit-content;
+  width: 1100px;
   max-width: 96vw;
   max-height: 96vh;
   max-height: 96dvh;
@@ -50,6 +51,7 @@ html.image-viewer-open {
 
 .image-viewer__toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -57,10 +59,12 @@ html.image-viewer-open {
 }
 
 .image-viewer__original {
+  margin-right: auto;
   color: #b5e853;
 }
 
-.image-viewer__close {
+.image-viewer__close,
+.image-viewer__reset {
   flex-shrink: 0;
   min-height: 44px;
   padding: 0.5rem 0.75rem;
@@ -76,15 +80,43 @@ html.image-viewer-open {
   margin: 0;
 }
 
+.image-viewer__viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 65vh;
+  height: 65dvh;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  cursor: zoom-in;
+}
+
+.image-viewer__viewport.is-zoomed {
+  cursor: grab;
+}
+
+.image-viewer__viewport.is-dragging {
+  cursor: grabbing;
+}
+
 .image-viewer__image {
   display: block;
+  flex: 0 0 auto;
   max-width: 100%;
-  max-height: 75vh;
-  max-height: 75dvh;
+  max-height: 100%;
   width: auto;
   height: auto;
   margin: 0 auto;
   object-fit: contain;
+  transform-origin: center;
+}
+
+.image-viewer__help {
+  margin: 0.75rem 0 0;
+  color: #bbb;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
 .image-viewer__caption {
