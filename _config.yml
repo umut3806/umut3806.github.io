@@ -9,3 +9,10 @@ description: Reverse engineering and malware analysis notes
 show_downloads: false
 
 permalink: /blogs/:title/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post

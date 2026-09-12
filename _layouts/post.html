@@ -1,0 +1,22 @@
+---
+layout: default
+---
+
+<link rel="stylesheet" href="{{ '/assets/css/blog-images.css' | relative_url }}">
+
+<article class="blog-post">
+  {{ content }}
+</article>
+
+<dialog class="image-viewer" aria-label="Enlarged blog image">
+  <div class="image-viewer__toolbar">
+    <a class="image-viewer__original" target="_blank" rel="noopener">Open full-size image</a>
+    <button class="image-viewer__close" type="button" autofocus aria-label="Close enlarged image">Close &times;</button>
+  </div>
+  <figure class="image-viewer__figure">
+    <img class="image-viewer__image" alt="">
+    <figcaption class="image-viewer__caption"></figcaption>
+  </figure>
+</dialog>
+
+<script src="{{ '/assets/js/blog-images.js' | relative_url }}" defer></script>

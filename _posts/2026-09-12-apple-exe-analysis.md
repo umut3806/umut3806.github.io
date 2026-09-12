@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "apple.exe Analysis"
 date: 2026-09-12
 description: "A line-by-line x86 reverse engineering analysis of apple.exe from the Flare Learning Hub MACC labs."
