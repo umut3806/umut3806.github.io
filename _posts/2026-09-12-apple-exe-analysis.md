@@ -2,10 +2,9 @@
 layout: post
 title: "apple.exe Analysis"
 date: 2026-09-12
-description: "A line-by-line x86 reverse engineering analysis of apple.exe from the Flare Learning Hub MACC labs."
+description: "A line-by-line x86 PE reverse engineering"
 permalink: /blogs/apple-exe-analysis/
 category: Reverse engineering
-series: Flare Learning Hub / MACC Labs
 filename: apple.exe
 md5: "30E92463EE572D8DBFA95FF3285BFA82"
 toc:
@@ -27,7 +26,7 @@ toc:
     id: return-values-and-the-abi
 ---
 
-Here, we will analyze the executable line by line. Our aim is not to answer the questions in the lab. After we analyze the executable, these will already be a piece of cake.
+Here, we will analyze an executable from Flare Learning Hub / MACC Labs, line by line. Our aim is not to answer the questions in the lab. After we analyze the executable, these will already be a piece of cake.
 
 ## First Look with DiE
 
