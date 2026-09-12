@@ -11,7 +11,7 @@ layout: default
     <span aria-hidden="true">/</span>
     <span>{{ page.category | default: 'Learning notes' | escape }}</span>
   </nav>
-  <header class="post-header">
+  <div class="post-header">
     <p class="post-eyebrow">{{ page.series | default: 'Field notes' | escape }}</p>
     <h1>{{ page.title | escape }}</h1>
     {% if page.description %}<p class="post-description">{{ page.description | escape }}</p>{% endif %}
@@ -22,7 +22,7 @@ layout: default
       {% if page.md5 %}<div><dt>MD5</dt><dd><code>{{ page.md5 | escape }}</code></dd></div>{% endif %}
     </dl>
     {% endif %}
-  </header>
+  </div>
   {% if page.toc %}
   <nav class="post-toc" aria-label="On this page">
     <p>On this page</p>

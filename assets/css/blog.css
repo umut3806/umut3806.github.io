@@ -1,247 +1,70 @@
-/* Keep article styling separate from the theme and the image viewer. */
-body:has(.blog-post) {
-  background: #131619;
-}
-
-body:has(.blog-post) .container {
-  width: 90%;
-  max-width: 900px;
-}
-
-.blog-post {
-  color-scheme: dark;
-  color: #d1d6dc;
-  font: 17px/1.85 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  overflow-wrap: anywhere;
-  padding: 1rem 0 3rem;
-}
-
-.blog-post a {
-  color: #b5e853;
-  text-shadow: none;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
-}
-
-.blog-post a:hover {
-  color: #d9ffa1;
-}
-
-.blog-post a:focus-visible {
-  outline: 2px solid #b5e853;
-  outline-offset: 5px;
-  border-radius: 2px;
-}
-
+/* Layout helpers only: fonts, text colors, and code styling come from the theme. */
 .post-breadcrumb {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  color: #9ca6b0;
-  font-size: 0.8rem;
+  margin-bottom: 2rem;
 }
 
-.blog-post .post-header {
-  background: none;
-  width: auto;
-  border: 0;
-  border-bottom: 1px solid #30363d;
-  margin: 2.5rem 0 1.5rem;
-  padding: 0 0 2rem;
-}
-
-.post-header .post-eyebrow {
-  margin: 0 0 0.65rem;
-  color: #b5e853;
-  font: 600 0.75rem/1.5 Monaco, Consolas, monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-}
-
-#main_content .post-header h1 {
-  color: #f1f4f7;
-  font: 700 clamp(2rem, 5vw, 3.3rem)/1.15 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  letter-spacing: -0.035em;
-  text-shadow: none;
-  margin: 0 0 1rem;
-}
-
-.post-header h1::before {
-  content: none;
-}
-
-.post-header .post-description {
-  color: #aab3bd;
-  font-size: 1.1rem;
-  line-height: 1.65;
-  max-width: 65ch;
-  margin: 0;
-}
-
-.post-date {
-  color: #929da9;
-  font-size: 0.8rem;
-  margin: 1.2rem 0 0;
+.post-header {
+  margin-bottom: 2rem;
 }
 
 .post-file-details {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem 2rem;
-  background: #1a1f24;
-  border: 1px solid #30363d;
-  border-radius: 8px;
-  margin: 1.5rem 0 0;
-  padding: 0.8rem 1rem;
+  border: 1px solid rgba(181, 232, 83, 0.25);
+  border-radius: 4px;
+  padding: 1rem;
 }
 
 .post-file-details > div {
   min-width: 0;
 }
 
-.post-file-details dt {
-  font-style: normal;
-  color: #929da9;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-
 .post-file-details dd {
   margin: 0;
-  font-size: 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .post-toc {
-  border-bottom: 1px solid #30363d;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-}
-
-.post-toc > p {
-  color: #929da9;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin: 0 0 0.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(181, 232, 83, 0.35);
 }
 
 .post-toc ol {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.25rem 2rem;
-  margin: 0;
-  padding-left: 1.4rem;
-  color: #76828e;
-  font-size: 0.85rem;
-}
-
-.post-toc a {
-  color: #c8d0d8;
-  text-decoration: none;
-}
-
-.post-content p {
-  margin: 0 0 1.4rem;
+  gap: 0.5rem 2rem;
+  padding-left: 1.5rem;
 }
 
 .post-content h2,
 .post-content h3 {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-weight: 650;
-  color: #eef2f6;
-  letter-spacing: -0.02em;
-  text-shadow: none;
   scroll-margin-top: 1.5rem;
 }
 
-#main_content .post-content h2 {
-  font-size: 1.7rem;
-  margin: 3rem 0 1.3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #30363d;
-}
-
-#main_content .post-content h3 {
-  font-size: 1.25rem;
-  margin: 2.5rem 0 1rem;
-}
-
-.post-content strong {
-  color: #f0f3f6;
-}
-
-.post-content li {
-  margin-bottom: 0.6rem;
-}
-
-.post-content ul li {
-  list-style-image: none;
-}
-
-.post-content li::marker {
-  color: #b5e853;
-}
-
-.blog-post code {
-  font-family: "Cascadia Code", Consolas, "Liberation Mono", monospace;
-  font-size: 0.88em;
-}
-
-.blog-post :not(pre) > code {
-  background: #20272d;
-  border: 1px solid #333e46;
-  border-radius: 4px;
-  color: #d8e8b8;
-  padding: 0.12em 0.35em;
-  white-space: normal;
-}
-
 .post-content pre {
-  background: #0e1114;
-  border: 1px solid #303a43;
-  border-radius: 8px;
-  padding: 1.2rem 1.4rem;
-  margin: 1.5rem 0;
-  overflow: auto;
   max-width: 100%;
   box-sizing: border-box;
-  line-height: 1.65;
-  font-size: 0.88rem;
-  color: #d1dbe5;
-  overflow-wrap: normal;
-}
-
-.post-content pre code {
-  font-size: inherit;
-  white-space: pre;
-}
-
-.post-content div.highlight {
-  background: transparent;
+  overflow: auto;
 }
 
 .post-content .blog-note {
-  background: #182326;
-  border: 1px solid #2c464b;
-  border-left: 3px solid #76c6d1;
-  border-radius: 0 8px 8px 0;
-  padding: 1.15rem 1.4rem;
-  margin: 1.8rem 0;
-  font-size: 0.95rem;
-  line-height: 1.75;
-  color: #c6d7dc;
+  background: rgba(181, 232, 83, 0.045);
+  border: 1px solid rgba(181, 232, 83, 0.25);
+  border-left: 3px solid #b5e853;
+  border-radius: 0 4px 4px 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
 }
 
 .blog-note .blog-note__title {
-  color: #8ed7e0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  margin: 0 0 0.6rem;
+  color: #b5e853;
+  font-weight: bold;
+  margin: 0 0 0.75rem;
 }
 
 .blog-note > :last-child {
@@ -250,51 +73,23 @@ body:has(.blog-post) .container {
 
 .post-content .image-source {
   text-align: center;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  overflow-wrap: anywhere;
   margin: -0.5rem 0 2rem;
-  color: #9ca6b0;
 }
 
 .image-source > span {
-  color: #9ca6b0;
   margin-right: 0.5rem;
 }
 
 .post-content table {
   display: block;
-  width: 100%;
   max-width: 100%;
   overflow-x: auto;
-  border-collapse: collapse;
-  border: 1px solid #303a43;
-  border-radius: 8px;
-  margin: 1.5rem 0 2rem;
-  font-size: 0.88rem;
-  line-height: 1.6;
 }
 
 .post-content th,
 .post-content td {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid #303a43;
-  text-align: left;
   min-width: 7rem;
-}
-
-.post-content th {
-  background: #20272d;
-  color: #e2eabf;
-  font-weight: 600;
-}
-
-.post-content tbody tr:nth-child(even) {
-  background: #191f24;
-}
-
-.post-content .blog-image-trigger {
-  border-radius: 6px;
-  outline-offset: 6px;
 }
 
 .post-footer {
@@ -302,16 +97,12 @@ body:has(.blog-post) .container {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
-  border-top: 1px solid #30363d;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  font-size: 0.85rem;
+  border-top: 1px dashed rgba(181, 232, 83, 0.35);
+  margin-top: 2rem;
+  padding-top: 1rem;
 }
 
 @media (max-width: 600px) {
-  .blog-post { font-size: 16px; }
   .post-toc ol { grid-template-columns: 1fr; }
   .post-content .blog-note { padding: 1rem; }
-  .post-content pre { padding: 1rem; font-size: 0.8rem; }
-  .post-header .post-description { font-size: 1rem; }
 }
