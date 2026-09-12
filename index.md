@@ -37,6 +37,10 @@ This site contains technical write-ups, lab analyses, and notes created while le
 
 ## About
 
-I use this site to document what I learn while analyzing binaries and working through reverse-engineering and malware-analysis labs.
+Hey, I'm Umut Bayram. Glad you're here!
 
-The goal is to understand what the machine is actually doing rather than relying only on decompiled pseudocode.
+I'm curious about what happens underneath the code we write. This blog is where I share what I'm learning about reverse engineering, malware analysis, and Windows internals, often by opening a binary and working through it one instruction at a time.
+
+Think of these posts as notes from someone learning alongside you. I try to explain the reasoning behind each step, especially the bits that made me pause and ask, "Wait, why does that work?" If you've ever stared at a stack frame or an assembly instruction until it finally clicked, you'll feel at home here.
+
+If you have a question, spot a mistake, or just want to talk about something interesting, [say hello on LinkedIn](https://www.linkedin.com/in/umut-bayram-166933242/). I'd love to hear what you're learning, too.
