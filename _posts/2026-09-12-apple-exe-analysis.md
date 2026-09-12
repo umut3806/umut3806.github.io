@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "apple.exe Analysis"
+title: "Understanding x86 Assembly Line by Line: Stack Frames, Calling Conventions, and More"
 date: 2026-09-12
 description: "A line-by-line x86 PE reverse engineering"
 permalink: /blogs/apple-exe-analysis/
