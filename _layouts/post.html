@@ -12,7 +12,6 @@ layout: default
     <span>{{ page.category | default: 'Learning notes' | escape }}</span>
   </nav>
   <div class="post-header">
-    <p class="post-eyebrow">{{ page.series | default: 'Field notes' | escape }}</p>
     <h1>{{ page.title | escape }}</h1>
     {% if page.description %}<p class="post-description">{{ page.description | escape }}</p>{% endif %}
     <p class="post-date"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%B %d, %Y' }}</time></p>
