@@ -26,7 +26,7 @@ toc:
     id: return-values-and-the-abi
 ---
 
-Here, we will analyze an executable from Flare Learning Hub / MACC Labs, line by line. Our aim is not to answer the questions in the lab. After we analyze the executable, these will already be a piece of cake.
+Here, we will analyze an executable from [Flare Learning Hub / MACC Labs](https://github.com/mandiant/flare-learning-hub/tree/main/macc), line by line. Our aim is not to answer the questions in the lab. After we analyze the executable, these will already be a piece of cake.
 
 ## First Look with DiE
 
