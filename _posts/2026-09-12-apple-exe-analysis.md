@@ -3,7 +3,7 @@ layout: post
 title: "Understanding x86 Assembly Line by Line: Stack Frames, Calling Conventions, and More"
 date: 2026-09-12
 description: "A line-by-line x86 PE reverse engineering"
-permalink: /blogs/apple-exe-analysis/
+permalink: /blogs/line-by-line-x86-analysis/
 category: Reverse engineering
 filename: apple.exe
 md5: "30E92463EE572D8DBFA95FF3285BFA82"
@@ -370,13 +370,12 @@ We are pushing all of the `edx` register onto the stack, not only the lower 8 bi
 <aside class="blog-note" aria-label="Note: Working with a single byte">
   <p class="blog-note__title">Note &middot; Working with a single byte</p>
   <p>Some may want to push only 1 byte onto the stack. It can be done this way:</p>
-</aside>
-
-```asm
+{% highlight asm %}
 dec esp        ; Equal to "sub esp, 1". First, we move the stack pointer
                ; one byte down because it points to the latest pushed value.
 mov [esp], dl
-```
+{% endhighlight %}
+</aside>
 
 Let's jump to `sub_401000`:
 
