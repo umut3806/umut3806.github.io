@@ -8,8 +8,6 @@ permalink: /blogs/
 
 # Blogs
 
-Reverse engineering, malware analysis, Windows internals, and low-level security notes.
-
 {% for post in site.posts %}
 {% include blog-card.html post=post heading_level=2 %}
 {% endfor %}
