@@ -1,0 +1,17 @@
+/* Separate entries while retaining the theme's typography and colors. */
+.blog-card {
+  box-sizing: border-box;
+  border: 1px solid rgba(181, 232, 83, 0.4);
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.blog-card > :first-child {
+  margin-top: 0;
+}
+
+.blog-card > :last-child {
+  margin-bottom: 0;
+}

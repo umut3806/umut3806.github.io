@@ -3,20 +3,14 @@ layout: default
 title: umut3806
 ---
 
+<link rel="stylesheet" href="{{ '/assets/css/blog-list.css' | relative_url }}">
+
 # Welcome to umut3806's corner of the internet!
 
 ## Latest Blogs
 
 {% for post in site.posts limit:5 %}
-
-### [{{ post.title }}]({{ post.url | relative_url }})
-
-{{ post.date | date: "%B %d, %Y" }}
-
-{% if post.description %}
-{{ post.description }}
-{% endif %}
-
+{% include blog-card.html post=post heading_level=3 %}
 {% endfor %}
 
 [View all blogs]({{ '/blogs/' | relative_url }})
