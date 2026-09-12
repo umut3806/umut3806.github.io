@@ -1,0 +1,14 @@
+---
+---
+
+@import "jekyll-theme-hacker";
+
+#downloads .btn-github {
+  display: none;
+}
+
+{% unless site.show_downloads %}
+#downloads {
+  display: none;
+}
+{% endunless %}
