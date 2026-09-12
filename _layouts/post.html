@@ -3,9 +3,38 @@ layout: default
 ---
 
 <link rel="stylesheet" href="{{ '/assets/css/blog-images.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/blog.css' | relative_url }}">
 
 <article class="blog-post">
+  <nav class="post-breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ '/blogs/' | relative_url }}">&larr; All blogs</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ page.category | default: 'Learning notes' | escape }}</span>
+  </nav>
+  <header class="post-header">
+    <p class="post-eyebrow">{{ page.series | default: 'Field notes' | escape }}</p>
+    <h1>{{ page.title | escape }}</h1>
+    {% if page.description %}<p class="post-description">{{ page.description | escape }}</p>{% endif %}
+    <p class="post-date"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%B %d, %Y' }}</time></p>
+    {% if page.filename or page.md5 %}
+    <dl class="post-file-details">
+      {% if page.filename %}<div><dt>File</dt><dd><code>{{ page.filename | escape }}</code></dd></div>{% endif %}
+      {% if page.md5 %}<div><dt>MD5</dt><dd><code>{{ page.md5 | escape }}</code></dd></div>{% endif %}
+    </dl>
+    {% endif %}
+  </header>
+  {% if page.toc %}
+  <nav class="post-toc" aria-label="On this page">
+    <p>On this page</p>
+    <ol>
+      {% for section in page.toc %}<li><a href="#{{ section.id | escape }}">{{ section.title | escape }}</a></li>{% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
+  <div class="post-content">
   {{ content }}
+  </div>
+  <footer class="post-footer"><a href="{{ '/blogs/' | relative_url }}">&larr; Back to all blogs</a><a href="#main_content">Back to top &uarr;</a></footer>
 </article>
 
 <dialog class="image-viewer" aria-label="Enlarged blog image">

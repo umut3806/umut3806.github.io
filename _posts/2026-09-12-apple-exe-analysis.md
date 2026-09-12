@@ -4,28 +4,43 @@ title: "apple.exe Analysis"
 date: 2026-09-12
 description: "A line-by-line x86 reverse engineering analysis of apple.exe from the Flare Learning Hub MACC labs."
 permalink: /blogs/apple-exe-analysis/
+category: Reverse engineering
+series: Flare Learning Hub / MACC Labs
+filename: apple.exe
+md5: "30E92463EE572D8DBFA95FF3285BFA82"
+toc:
+  - title: First look with DiE
+    id: first-look-with-die
+  - title: Assembly analysis
+    id: line-by-line-assembly-analysis-with-ida
+  - title: Calling conventions
+    id: calling-conventions
+  - title: Registers and local variables
+    id: registers-and-local-variables
+  - title: Comparisons and branches
+    id: comparisons-and-branches
+  - title: Return values and the ABI
+    id: return-values-and-the-abi
 ---
-
-# Flare-Learning-Hub MACC Labs / apple.exe Analysis (Line-by-Line)
-
-## Filename: apple.exe
-## MD5: 30E92463EE572D8DBFA95FF3285BFA82
 
 Here, we will analyze the executable line by line. Our aim is not to answer the questions in the lab. After we analyze the executable, these will already be a piece of cake.
 
-### First Look with DiE
+## First Look with DiE
 
-**Note:** DiE is not a magical tool. It parses the PE file headers and combines them to show us a result. If we wanted, we could also write our own PE parser and see similar results. You can check the PE file format for more information.
+<aside class="blog-note" aria-label="Note: Understanding DiE">
+  <p class="blog-note__title">Note &middot; Understanding DiE</p>
+  <p>DiE is not a magical tool. It parses the PE file headers and combines them to show us a result. If we wanted, we could also write our own PE parser and see similar results. You can check the PE file format for more information.</p>
+</aside>
 
 First of all, we put the binary into DiE to understand the general structure of the executable.
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/die-overview.png' | relative_url }}" alt="DiE overview showing PE32 and compiler information" style="width: 700px; max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/die-overview.png' | relative_url }}" alt="DiE overview showing PE32 and compiler information" style="width: 700px; max-width: 100%; height: auto;" width="766" height="111" loading="lazy">
 
 We see that the source code is written in C and compiled for the 32-bit i386 architecture, which means x86. It is a PE (Portable Executable) file, so we know that this file is meant to run on Windows.
 
 Let's check the strings in the binary using the Strings tab in DiE.
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/die-strings.png' | relative_url }}" alt="DiE strings view for apple.exe" style="width: 700px; max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/die-strings.png' | relative_url }}" alt="DiE strings view for apple.exe" style="width: 700px; max-width: 100%; height: auto;" width="909" height="298" loading="lazy">
 
 - The strings in the PE header are generic, so there is nothing interesting in them.
 - `KERNEL32.dll` and `MSVCRT.dll` show that the executable will probably use some operating system APIs by loading these DLLs into memory at runtime. We can also confirm this because `printf` and `scanf` are C runtime I/O functions imported from MSVCRT. Their implementation ultimately relies on system calls for console or file I/O.
@@ -33,7 +48,7 @@ Let's check the strings in the binary using the Strings tab in DiE.
 
 The sections also include the usual sections: `.text` for code, `.rdata` for constant initialized data (read-only), and `.data` for non-constant initialized data.
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/pe-sections.png' | relative_url }}" alt="PE section table in DiE" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/pe-sections.png' | relative_url }}" alt="PE section table in DiE" style="max-width: 100%; height: auto;" width="1421" height="117" loading="lazy">
 
 We can also sometimes see a `.bss` data section that holds uninitialized data. We can summarize these below:
 
@@ -50,7 +65,7 @@ We can also sometimes see a `.bss` data section that holds uninitialized data. W
 
 Let's disassemble the binary in IDA.
 
-### Line-by-Line Assembly Analysis with IDA
+## Line-by-Line Assembly Analysis with IDA
 
 Here, I don't want to convert the assembly to pseudocode. We will prefer the hard way, but this will help us understand assembly code much better when we look at it.
 
@@ -58,7 +73,10 @@ We will go through the assembly code one instruction at a time and try to unders
 
 Let's start with the entry point of the executable, which is named `start` in IDA.
 
-**Note:** `start` does **not necessarily mean `main()`**.
+<aside class="blog-note" aria-label="Note: Entry point vs. main">
+  <p class="blog-note__title">Note &middot; Entry point vs. main</p>
+  <p><code>start</code> does <strong>not necessarily mean <code>main()</code></strong>.</p>
+</aside>
 
 For a Windows executable, execution may look like this:
 
@@ -82,7 +100,7 @@ start
 malware's own code directly
 ```
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/ida-start.png' | relative_url }}" alt="IDA disassembly of the start function" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/ida-start.png' | relative_url }}" alt="IDA disassembly of the start function" style="max-width: 100%; height: auto;" width="426" height="548" loading="lazy">
 
 ```asm
 var_84 = byte ptr -84h
@@ -99,13 +117,16 @@ sub     esp, 84h
 
 This is a "function prologue." Functions have it at the beginning. Its purpose is to prepare a stack frame for the function's local variables. To understand how it does this, we will look at the diagram below:
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/stack-frame-diagram.png' | relative_url }}" alt="Caller and callee stack frame diagram" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/stack-frame-diagram.png' | relative_url }}" alt="Caller and callee stack frame diagram" style="max-width: 100%; height: auto;" width="399" height="299" loading="lazy">
 
-A really good visual from: https://chessman7.substack.com/p/how-your-code-executes-a-guide-to
+<p class="image-source"><span>Source</span><a href="https://chessman7.substack.com/p/how-your-code-executes-a-guide-to">How your code executes &mdash; Chessman</a></p>
 
 First of all, in x86 (32-bit) and x86-64 (the 64-bit version), the stack grows downward. So, new stack frames are added at lower addresses. In other words, older frames are at higher addresses. As you can see in the diagram, the caller's stack frame is higher than the callee's. As you can understand from the names, one is the caller (the first function) and the other is the callee (the second function, which is called).
 
-**Note:** Not every CPU works this way. For example, the Intel 8051 stack grows upward toward higher memory addresses. But we can take the sentence "stacks grow downward" as a general rule.
+<aside class="blog-note" aria-label="Note: Stack direction depends on the architecture">
+  <p class="blog-note__title">Note &middot; Stack direction depends on the architecture</p>
+  <p>Not every CPU works this way. For example, the Intel 8051 stack grows upward toward higher memory addresses. But we can take the sentence "stacks grow downward" as a general rule.</p>
+</aside>
 
 In x86, functions are called with the `call` mnemonic and a function address:
 
@@ -190,6 +211,8 @@ EAX = 00402000h
 It may be a little complex. But the good news is that the CPU does not care whether you wrote NASM or MASM syntax. Both assemblers ultimately produce machine code. We can think of them as syntax differences.
 
 Okay, now we pushed the address of the string onto the stack. Then we call the `printf` function. After that, we increment the stack pointer (`ESP`).
+
+### Calling Conventions
 
 This is known as a "calling convention." There are plenty of calling conventions, but we can mention a few of them to understand the concept better.
 
@@ -293,11 +316,13 @@ mov     [ebp+var_4], cl
 mov     dl, [ebp+var_4]
 ```
 
+### Registers and Local Variables
+
 Here, we see a register named `cl`. This is actually part of the `ecx` register. More specifically, it is the lower 8 bits of that register. You can understand this better with the image below:
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/x86-register-layout.png' | relative_url }}" alt="x86 general-purpose register layout" style="width: 597px; max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/x86-register-layout.png' | relative_url }}" alt="x86 general-purpose register layout" style="width: 597px; max-width: 100%; height: auto;" width="960" height="720" loading="lazy">
 
-Source: https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
+<p class="image-source"><span>Source</span><a href="https://www.cs.virginia.edu/~evans/cs216/guides/x86.html">x86 Assembly Guide &mdash; University of Virginia</a></p>
 
 This time, the mnemonic is `mov`, not `lea`. It will now copy the value, and this is important, the **value** at the address calculated by `[ebp+var_84]`.
 
@@ -345,7 +370,10 @@ call    sub_401000
 
 We are pushing all of the `edx` register onto the stack, not only the lower 8 bits. Then, we call a function. From here, we can understand that the character is the argument to `sub_401000`.
 
-**Note:** Some may want to push only 1 byte onto the stack. It can be done this way:
+<aside class="blog-note" aria-label="Note: Working with a single byte">
+  <p class="blog-note__title">Note &middot; Working with a single byte</p>
+  <p>Some may want to push only 1 byte onto the stack. It can be done this way:</p>
+</aside>
 
 ```asm
 dec esp        ; Equal to "sub esp, 1". First, we move the stack pointer
@@ -355,7 +383,7 @@ mov [esp], dl
 
 Let's jump to `sub_401000`:
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/sub-401000.png' | relative_url }}" alt="IDA graph view of sub_401000" style="width: 700px; max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/sub-401000.png' | relative_url }}" alt="IDA graph view of sub_401000" style="width: 700px; max-width: 100%; height: auto;" width="1092" height="631" loading="lazy">
 
 The first two assembly instructions are function prologue instructions, which we discussed above.
 
@@ -363,11 +391,16 @@ The first two assembly instructions are function prologue instructions, which we
 
 Then, we see a new symbol here, `arg_0`. It is defined as `8`. In fact, this shows an offset. It is `8` because `[ebp+8]` calculates to the first argument. Let's look at the visual below to understand it better (my drawing is really good, man :)):
 
-**Note:** To understand the image below, you should understand "endianness." There are two types of endianness: little endian and big endian. Little endian means lower addresses hold the least significant byte of multi-byte values. Big endian means lower addresses hold the most significant byte of multi-byte values. Do not forget that these concepts are only valid for multi-byte values. You can think of it as being written from left to right. Both x86 and x86-64 are little-endian architectures. So, as you can see in the image below, the least significant bytes are held at lower addresses.
+<aside class="blog-note" aria-label="Note: Understanding endianness">
+  <p class="blog-note__title">Note &middot; Understanding endianness</p>
+  <p>To understand the image below, you should understand "endianness." There are two types of endianness: little endian and big endian. Little endian means lower addresses hold the least significant byte of multi-byte values. Big endian means lower addresses hold the most significant byte of multi-byte values. Do not forget that these concepts are only valid for multi-byte values. You can think of it as being written from left to right. Both x86 and x86-64 are little-endian architectures. So, as you can see in the image below, the least significant bytes are held at lower addresses.</p>
+</aside>
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/stack-argument-layout.png' | relative_url }}" alt="Stack layout showing first argument at EBP plus 8" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/stack-argument-layout.png' | relative_url }}" alt="Stack layout showing first argument at EBP plus 8" style="max-width: 100%; height: auto;" width="1776" height="1043" loading="lazy">
 
 Okay, now I think we understand why it is calculated as `[ebp+8]`. With `mov al, [ebp+8]`, it copies the first character we provided into the `al` register. Then, with `mov [ebp+var_4], al`, it copies this character to a local variable shown as `var_4`. As you remember, we also reserved space for this local variable. As we said before, it didn't have to do this.
+
+### Comparisons and Branches
 
 Then, we see a `cmp` instruction:
 
@@ -378,9 +411,9 @@ jz  short_loc40101E
 
 In fact, at the machine-code level, comparison operations are performed by subtraction. So, `cmp a, b` evaluates `a - b`. After this operation, the `EFLAGS` register is updated. The subtraction result itself is not stored; only the flags are updated.
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/eflags-register.png' | relative_url }}" alt="EFLAGS register layout" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/eflags-register.png' | relative_url }}" alt="EFLAGS register layout" style="max-width: 100%; height: auto;" width="1600" height="522" loading="lazy">
 
-Source: https://grandidierite.github.io/basic-execution-environment-of-intel-processor-32-bit-architecture/
+<p class="image-source"><span>Source</span><a href="https://grandidierite.github.io/basic-execution-environment-of-intel-processor-32-bit-architecture/">Intel 32-bit execution environment &mdash; Grandidierite</a></p>
 
 What is important for us here is `ZF` (Zero Flag). This flag is set to `1` if the subtraction above results in zero. You can also research the other fields. At the end of the day, the `cmp` mnemonic subtracts two values and adjusts the flags accordingly.
 
@@ -406,6 +439,8 @@ add     esp, 4
 
 If we look at the other branches, we will see similar assembly code. If it is not `"a"` but `"b"`, it prints `"banana\n"`. If it is not `"b"` either but `"c"`, it prints `"cantalope\n"`. If it is a completely different character, we can think of it as the default branch of a switch-case statement, and it prints `"no fruit\n"`.
 
+### Function Epilogue
+
 After that, we have an important section before returning from the function:
 
 ```asm
@@ -419,7 +454,7 @@ This is known as a "function epilogue." These are found at the end of functions.
 
 Here is another visualization by me:
 
-<img src="{{ '/assets/blogs/apple-exe-analysis/function-epilogue.png' | relative_url }}" alt="Stack layout before and after the function epilogue" style="max-width: 100%; height: auto;" loading="lazy">
+<img src="{{ '/assets/blogs/apple-exe-analysis/function-epilogue.png' | relative_url }}" alt="Stack layout before and after the function epilogue" style="max-width: 100%; height: auto;" width="2048" height="921" loading="lazy">
 
 Here, first, we move the stack pointer to point to the old base pointer because we will pop that old address into `ebp` in the next step. With this, we adjust `ebp` to the old function's base address. Now, our `ESP` points to the return address. If we use only `retn`, we will pop that address into `eip`, which is the instruction pointer and holds the address of the next instruction the CPU will execute. But this way, if the caller doesn't clean the arguments, they remain on the stack. In this case, the caller does not clear them, as we will see below. This time, the callee clears these arguments with `retn 4`, which means "pop the return address into `eip`, then increment the stack pointer by 4." This way, a 4-byte variable will be cleaned from the stack.
 
@@ -429,9 +464,14 @@ Now, we return to the next instruction after the very first call:
 mov [ebp+var_4], al
 ```
 
+### Return Values and the ABI
+
 You may ask what the deal with `al` is right now. Well, to understand this, we first need to understand how functions return values to their callers.
 
-**Note:** Below, we will mention the ABI (Application Binary Interface). Let me explain it here first. An ABI defines the low-level rules that compiled programs follow to work together, such as how function arguments are passed, where return values are placed, which registers must be preserved, and how the stack is used. For instance, a calling convention, which we mentioned above, is one part of an ABI.
+<aside class="blog-note" aria-label="Note: What is an ABI?">
+  <p class="blog-note__title">Note &middot; What is an ABI?</p>
+  <p>Below, we will mention the ABI (Application Binary Interface). Let me explain it here first. An ABI defines the low-level rules that compiled programs follow to work together, such as how function arguments are passed, where return values are placed, which registers must be preserved, and how the stack is used. For instance, a calling convention, which we mentioned above, is one part of an ABI.</p>
+</aside>
 
 Common ABIs use patterns like the following. Exact return rules depend on the operating system, compiler, ABI, type size, and type layout.
 
