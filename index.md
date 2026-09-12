@@ -3,11 +3,7 @@ layout: default
 title: umut3806
 ---
 
-# Flare Learning Hub
-
-Reverse engineering, malware analysis, Windows internals, and low-level security notes.
-
-This site contains technical write-ups, lab analyses, and notes created while learning how executables work at the assembly and operating-system level.
+# Welcome to umut3806's corner of the internet!
 
 ## Latest Blogs
 
@@ -24,16 +20,6 @@ This site contains technical write-ups, lab analyses, and notes created while le
 {% endfor %}
 
 [View all blogs]({{ '/blogs/' | relative_url }})
-
-## Topics
-
-- Reverse Engineering
-- Malware Analysis
-- x86 / x86-64 Assembly
-- Windows Internals
-- PE File Format
-- Debugging
-- Low-Level Programming
 
 ## About
 
