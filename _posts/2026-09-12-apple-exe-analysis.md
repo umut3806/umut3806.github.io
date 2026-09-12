@@ -13,12 +13,16 @@ toc:
     id: first-look-with-die
   - title: Assembly analysis
     id: line-by-line-assembly-analysis-with-ida
+  - title: Stack frames
+    id: stack-frames
   - title: Calling conventions
     id: calling-conventions
   - title: Registers and local variables
     id: registers-and-local-variables
   - title: Comparisons and branches
     id: comparisons-and-branches
+  - title: Function epilogue
+    id: function-epilogue
   - title: Return values and the ABI
     id: return-values-and-the-abi
 ---
@@ -76,31 +80,25 @@ Let's start with the entry point of the executable, which is named `start` in ID
 <aside class="blog-note" aria-label="Note: Entry point vs. main">
   <p class="blog-note__title">Note &middot; Entry point vs. main</p>
   <p><code>start</code> does <strong>not necessarily mean <code>main()</code></strong>.</p>
-</aside>
-
-For a Windows executable, execution may look like this:
-
-```text
-Windows loader
+  <p>For a Windows executable, execution may look like this:</p>
+  <pre><code class="language-text">Windows loader
     ↓
 PE EntryPoint ("start")
     ↓
 C/C++ runtime initialization
     ↓
-main / WinMain
-```
-
-Or, in malware and hand-written assembly:
-
-```text
-Windows loader
+main / WinMain</code></pre>
+  <p>Or, in malware and hand-written assembly:</p>
+  <pre><code class="language-text">Windows loader
     ↓
 start
     ↓
-malware's own code directly
-```
+malware's own code directly</code></pre>
+</aside>
 
 <img src="{{ '/assets/blogs/apple-exe-analysis/ida-start.png' | relative_url }}" alt="IDA disassembly of the start function" style="max-width: 100%; height: auto;" width="426" height="548" loading="lazy">
+
+### Stack Frames
 
 ```asm
 var_84 = byte ptr -84h
