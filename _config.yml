@@ -4,7 +4,7 @@ plugins:
   - jekyll-remote-theme
 
 title: umut3806
-description: Reverse engineering and malware analysis notes
+description: Trust issues, but with software.
 
 show_downloads: false
 
