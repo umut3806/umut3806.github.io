@@ -10,7 +10,8 @@
   let scale = 1;
   let offsetX = 0;
   let offsetY = 0;
-  let drag;
+  const pointers = new Map();
+  let pinch;
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -21,16 +22,21 @@
     offsetY = clamp(offsetY, -maxY, maxY);
     enlargedImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
     viewport.classList.toggle('is-zoomed', scale > 1);
+    viewport.classList.toggle('is-dragging', pointers.size > 0 && scale > 1);
   };
 
-  const stopDragging = () => {
-    if (drag && viewport.hasPointerCapture(drag.id)) viewport.releasePointerCapture(drag.id);
-    drag = undefined;
+  const stopGesture = () => {
+    const ids = [...pointers.keys()];
+    pointers.clear();
+    pinch = undefined;
+    ids.forEach((id) => {
+      if (viewport.hasPointerCapture(id)) viewport.releasePointerCapture(id);
+    });
     viewport.classList.remove('is-dragging');
   };
 
   const resetZoom = () => {
-    stopDragging();
+    stopGesture();
     scale = 1;
     offsetX = 0;
     offsetY = 0;
@@ -57,27 +63,52 @@
       event.clientY - bounds.top - bounds.height / 2);
   }, { passive: false });
 
+  const pinchGeometry = () => {
+    const [first, second] = pointers.values();
+    const bounds = viewport.getBoundingClientRect();
+    return {
+      distance: Math.max(1, Math.hypot(second.x - first.x, second.y - first.y)),
+      x: (first.x + second.x) / 2 - bounds.left - bounds.width / 2,
+      y: (first.y + second.y) / 2 - bounds.top - bounds.height / 2,
+    };
+  };
+
   viewport.addEventListener('pointerdown', (event) => {
-    if (scale <= 1 || event.button !== 0 || drag) return;
+    // Track touches at the initial scale so a second finger can start zooming.
+    if (event.button !== 0 || pointers.size >= 2 ||
+      (event.pointerType !== 'touch' && scale <= 1)) return;
     event.preventDefault();
     viewport.focus({ preventScroll: true });
-    drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     viewport.setPointerCapture(event.pointerId);
-    viewport.classList.add('is-dragging');
+    if (pointers.size === 2) pinch = { ...pinchGeometry(), scale, offsetX, offsetY };
+    renderZoom();
   });
 
   viewport.addEventListener('pointermove', (event) => {
-    if (!drag || drag.id !== event.pointerId) return;
-    offsetX += event.clientX - drag.x;
-    offsetY += event.clientY - drag.y;
-    drag.x = event.clientX;
-    drag.y = event.clientY;
+    const previous = pointers.get(event.pointerId);
+    if (!previous) return;
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pinch) {
+      const current = pinchGeometry();
+      scale = clamp(pinch.scale * current.distance / pinch.distance, 1, 8);
+      const ratio = scale / pinch.scale;
+      // Keep the image point under the fingers anchored as their midpoint moves.
+      offsetX = current.x - (pinch.x - pinch.offsetX) * ratio;
+      offsetY = current.y - (pinch.y - pinch.offsetY) * ratio;
+    } else if (scale > 1) {
+      offsetX += event.clientX - previous.x;
+      offsetY += event.clientY - previous.y;
+    }
     renderZoom();
   });
 
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((type) => {
     viewport.addEventListener(type, (event) => {
-      if (drag?.id === event.pointerId) stopDragging();
+      if (!pointers.delete(event.pointerId)) return;
+      pinch = undefined;
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+      renderZoom();
     });
   });
 
