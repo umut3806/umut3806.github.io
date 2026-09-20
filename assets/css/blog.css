@@ -34,11 +34,21 @@
   border-bottom: 1px dashed rgba(181, 232, 83, 0.35);
 }
 
-.post-toc ol {
+.post-toc > ol {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem 2rem;
   padding-left: 1.5rem;
+}
+
+.post-toc ol ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.5rem;
+  list-style-type: lower-alpha;
+}
+
+.post-toc ol ol li + li {
+  margin-top: 0.4rem;
 }
 
 .post-content h2,
@@ -103,6 +113,6 @@
 }
 
 @media (max-width: 600px) {
-  .post-toc ol { grid-template-columns: 1fr; }
+  .post-toc > ol { grid-template-columns: 1fr; }
   .post-content .blog-note { padding: 1rem; }
 }

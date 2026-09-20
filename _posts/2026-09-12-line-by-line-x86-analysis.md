@@ -270,11 +270,11 @@ func(10, 20, 30);
 
 We can summarize them in a table:
 
-| Calling convention | Arguments | Stack cleanup |
-| --- | --- | --- |
-| `cdecl` | Stack | Caller |
-| `stdcall` | Stack | Callee |
-| `fastcall` | Registers + stack | Usually callee |
+| Calling convention | Arguments         | Stack cleanup  |
+| ------------------ | ----------------- | -------------- |
+| `cdecl`            | Stack             | Caller         |
+| `stdcall`          | Stack             | Callee         |
+| `fastcall`         | Registers + stack | Usually callee |
 
 Our assembly code uses `cdecl`, as you can see, because the argument to `printf` is pushed onto the stack, and after `printf` returns, the caller cleans the arguments.
 
@@ -471,16 +471,16 @@ You may ask what the deal with `al` is right now. Well, to understand this, we f
 
 Common ABIs use patterns like the following. Exact return rules depend on the operating system, compiler, ABI, type size, and type layout.
 
-| Return type | x86-32 | x86-64 |
-| --- | --- | --- |
-| Integer | `EAX` | `RAX` |
-| Pointer | `EAX` | `RAX` |
-| 64-bit integer | `EDX:EAX` | `RAX` |
-| 128-bit integer | Usually memory / ABI-dependent | `RDX:RAX` on System V AMD64 |
-| `float` / `double` | `ST(0)` | `XMM0` |
-| Small struct by value | ABI-dependent, may use registers | Registers if ABI rules allow, such as `RAX/RDX` or XMM registers |
+| Return type           | x86-32                                                                          | x86-64                                                                          |
+| --------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Integer               | `EAX`                                                                           | `RAX`                                                                           |
+| Pointer               | `EAX`                                                                           | `RAX`                                                                           |
+| 64-bit integer        | `EDX:EAX`                                                                       | `RAX`                                                                           |
+| 128-bit integer       | Usually memory / ABI-dependent                                                  | `RDX:RAX` on System V AMD64                                                     |
+| `float` / `double`    | `ST(0)`                                                                         | `XMM0`                                                                          |
+| Small struct by value | ABI-dependent, may use registers                                                | Registers if ABI rules allow, such as `RAX/RDX` or XMM registers                |
 | Large struct by value | Hidden pointer to caller-provided memory, such as a local variable or temporary | Hidden pointer to caller-provided memory, such as a local variable or temporary |
-| Struct pointer | `EAX` | `RAX` |
+| Struct pointer        | `EAX`                                                                           | `RAX`                                                                           |
 
 The distinction between a struct by value and a struct pointer is this:
 

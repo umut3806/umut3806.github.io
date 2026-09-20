@@ -1,8 +1,53 @@
 ---
 layout: post
-title: "FLARE-On 2014 Solutions: Part 1 — Challenges 1, 2 and 3"
+title: "FLARE-On 2014 Solutions Part 1 (Challenges 1, 2 and 3)"
 date: 2026-09-20
 permalink: /blogs/flare-on-2014-solutions-part-1/
+category: Reverse engineering
+toc:
+  - title: "Challenge 1"
+    id: challenge-1
+    children:
+      - title: "First Look at the Executable"
+        id: first-look-at-the-executable
+      - title: "Following the Decode Button"
+        id: following-the-decode-button
+      - title: "Understanding the First Loop"
+        id: understanding-the-first-loop
+      - title: "What Happens to the Decoded Text?"
+        id: what-happens-to-the-decoded-text
+      - title: "Finding the Flag in the Debugger"
+        id: finding-the-flag-in-the-debugger
+  - title: "Challenge 2"
+    id: challenge-2
+    children:
+      - title: "PHP Inside an Image?"
+        id: php-inside-an-image
+      - title: "Rebuilding the Code from Two Arrays"
+        id: rebuilding-the-code-from-two-arrays
+      - title: "Decoding the Function Name"
+        id: decoding-the-function-name
+      - title: "Looking at the Final PHP Code"
+        id: looking-at-the-final-php-code
+      - title: "Recovering the Flag"
+        id: recovering-the-flag
+  - title: "Challenge 3"
+    id: challenge-3
+    children:
+      - title: "First Look at the Executable"
+        id: first-look-at-the-executable-1
+      - title: "Building Code on the Stack"
+        id: building-code-on-the-stack
+      - title: "First Layer: XOR with 0x66"
+        id: first-layer-xor-with-0x66
+      - title: "Second Layer: A Repeating XOR Key"
+        id: second-layer-a-repeating-xor-key
+      - title: "Third Layer: XORing Four Bytes at a Time"
+        id: third-layer-xoring-four-bytes-at-a-time
+      - title: "Fourth Layer: Following the Memory Being Decoded"
+        id: fourth-layer-following-the-memory-being-decoded
+      - title: "Finding the Flag in Memory"
+        id: finding-the-flag-in-memory
 ---
 
 Here, we will start solving the [FLARE-On 2014 challenges](https://flare-on.com/). This first blog will cover challenges 1, 2 and 3. We will go through the code and try to understand how each solution works. Finding the flag is nice, but understanding how we reached it is the useful part.
@@ -25,9 +70,10 @@ Challenge1.exe: PE32 executable (GUI) Intel 80386 Mono/.Net assembly, for MS Win
 
 We have a Windows GUI executable. The interesting part here is `Mono/.Net assembly`. This tells us that we are dealing with a .NET assembly, so we can open it in a .NET decompiler such as dnSpy and inspect the code.
 
-> **Note: Decompiling a .NET assembly**
->
-> A typical .NET assembly contains intermediate language (IL) and metadata describing things such as types and methods. A decompiler can use these to reconstruct readable C# code. This is not necessarily the exact source code the developer wrote, but it makes following the program much easier.
+<aside class="blog-note" aria-label="Note: Decompiling a .NET assembly">
+  <p class="blog-note__title">Note: Decompiling a .NET assembly</p>
+  <p>A typical .NET assembly contains intermediate language (IL) and metadata describing things such as types and methods. A decompiler can use these to reconstruct readable C# code. This is not necessarily the exact source code the developer wrote, but it makes following the program much easier.</p>
+</aside>
 
 Let's look at the program running it.
 
@@ -123,25 +169,23 @@ Bitwise OR:          EFGH ABCD
 
 So, for example, the nibble swap turns `0xAB` into `0xBA`.
 
-> **Note: Why don't we use `& 0x0F` after the right shift?**
->
-> You may ask why we mask the left shift with `0xF0`, but do not mask the right shift with `0x0F`. Here, `b` is an unsigned byte, so its value is between 0 and 255. Shifting it right by 4 already leaves only the original upper nibble in the lowest four positions. All higher bits are zero. Applying `& 0x0F` would give us exactly the same result:
->
-> ```text
-> b >> 4:              0000 ABCD
-> AND 0x0F:            0000 1111
->                      ---------
-> Result:              0000 ABCD
-> ```
->
-> The left shift is different. In C#, b is promoted to a 32-bit int before shifting, so its original upper nibble moves into higher bit positions instead of being discarded. The & 0xF0 mask then removes those bits and keeps only the original lower nibble in its new position. Showing only the lowest 16 bits:
->
-> ```text
-> b << 4:              0000 ABCD EFGH 0000
-> AND 0xF0:            0000 0000 1111 0000
->                      -------------------
-> Result:              0000 0000 EFGH 0000
-> ```
+<aside class="blog-note" aria-label="Note: Why don't we use &amp; 0x0F after the right shift?">
+  <p class="blog-note__title">Note: Why don't we use <code>&amp; 0x0F</code> after the right shift?</p>
+  <p>You may ask why we mask the left shift with <code>0xF0</code>, but do not mask the right shift with <code>0x0F</code>. Here, <code>b</code> is an unsigned byte, so its value is between 0 and 255. Shifting it right by 4 already leaves only the original upper nibble in the lowest four positions. All higher bits are zero. Applying <code>&amp; 0x0F</code> would give us exactly the same result:</p>
+{% highlight text %}
+b >> 4:              0000 ABCD
+AND 0x0F:            0000 1111
+                     ---------
+Result:              0000 ABCD
+{% endhighlight %}
+  <p>The left shift is different. In C#, b is promoted to a 32-bit int before shifting, so its original upper nibble moves into higher bit positions instead of being discarded. The &amp; 0xF0 mask then removes those bits and keeps only the original lower nibble in its new position. Showing only the lowest 16 bits:</p>
+{% highlight text %}
+b << 4:              0000 ABCD EFGH 0000
+AND 0xF0:            0000 0000 1111 0000
+                     -------------------
+Result:              0000 0000 EFGH 0000
+{% endhighlight %}
+</aside>
 
 After swapping the nibbles, the code XORs the result with `0x29`.
 
@@ -150,6 +194,7 @@ We can think of the whole loop like this:
 ```text
 Resource byte -> swap its nibbles -> XOR with 0x29 -> append as a character
 ```
+
 Let's continue with the next loop.
 
 ### What Happens to the Decoded Text?
@@ -179,7 +224,7 @@ for (int k = 0; k < text2.Length; k++)
 }
 ```
 
-This time, the XOR value is `102`, which is `0x66`. 
+This time, the XOR value is `102`, which is `0x66`.
 
 Finally, the program displays `text3`:
 
@@ -235,9 +280,10 @@ Let's check the strings inside `flare-on.png`.
 
 We can see `IEND`, which marks the final PNG chunk, followed by `<?php` at offset `0x19C4`. There is PHP code appended after the image data.
 
-> **Note: Does the file extension matter here?**
->
-> When PHP processes a local file through `include`, it parses the contents for PHP tags. The included file does not need a `.php` extension. Bytes outside the PHP tags are output as ordinary content, while code inside the tags is interpreted as PHP.  Attackers can abuse this behavior by hiding PHP code inside a file that looks like an ordinary image. 
+<aside class="blog-note" aria-label="Note: Does the file extension matter here?">
+  <p class="blog-note__title">Note: Does the file extension matter here?</p>
+  <p>When PHP processes a local file through <code>include</code>, it parses the contents for PHP tags. The included file does not need a <code>.php</code> extension. Bytes outside the PHP tags are output as ordinary content, while code inside the tags is interpreted as PHP.  Attackers can abuse this behavior by hiding PHP code inside a file that looks like an ordinary image. </p>
+</aside>
 
 Okay, now the unusual `include` makes sense. Let's look at what the appended code does.
 
@@ -263,7 +309,7 @@ Let's take the first few indices:
 $order:       59   71   73   13
 $terms[...]    $    _    =   space
 
-Result: $_= 
+Result: $_=
 ```
 
 The arrays are rebuilding another piece of PHP code. Once the loop finishes, `eval($do_me)` executes that code.
@@ -295,11 +341,11 @@ This string mixes hexadecimal and octal escape sequences. In a PHP double-quoted
 For example:
 
 | Escape | Decimal value | Character |
-| --- | --- | --- |
-| `\x62` | 98 | `b` |
-| `\141` | 97 | `a` |
-| `\x73` | 115 | `s` |
-| `\145` | 101 | `e` |
+| ------ | ------------- | --------- |
+| `\x62` | 98            | `b`       |
+| `\141` | 97            | `a`       |
+| `\x73` | 115           | `s`       |
+| `\145` | 101           | `e`       |
 
 If we decode the entire string, we get:
 
@@ -361,9 +407,10 @@ For the intended challenge text, the numbers without `x` are decimal character v
 
 Now the beginning reads `a11DOT`. Let's decode the rest.
 
-> **Note: This is not how PHP normally reads numeric escapes**
->
-> PHP's numeric string escapes are octal, not decimal. For example, `\141` represents `a`, while `\97` is not a valid octal escape and remains a literal backslash followed by `97`. Here, we are recovering the challenge's intended message by interpreting the numeric groups as decimal values. We should not confuse that decoding rule with the actual runtime behavior of PHP. 
+<aside class="blog-note" aria-label="Note: This is not how PHP normally reads numeric escapes">
+  <p class="blog-note__title">Note: This is not how PHP normally reads numeric escapes</p>
+  <p>PHP's numeric string escapes are octal, not decimal. For example, <code>\141</code> represents <code>a</code>, while <code>\97</code> is not a valid octal escape and remains a literal backslash followed by <code>97</code>. Here, we are recovering the challenge's intended message by interpreting the numeric groups as decimal values. We should not confuse that decoding rule with the actual runtime behavior of PHP. </p>
+</aside>
 
 ### Recovering the Flag
 
@@ -414,7 +461,7 @@ Let's continue with challenge 3.
 
 ### First Look at the Executable
 
- Let's check the file with `file` command:
+Let's check the file with `file` command:
 
 ```text
 such_evil: PE32 executable (console) Intel 80386 (stripped to external PDB), for MS Windows
@@ -509,7 +556,6 @@ lea     eax, [ebp+var_201]
 call    eax
 ```
 
-
 `lea` puts the address of the beginning of the buffer into `EAX`. Then, `call eax` transfers execution to that address. The program is going to execute the bytes it just wrote onto the stack.
 
 This is a shellcode which is a block of machine instructions that can execute from memory.
@@ -517,9 +563,10 @@ This is a shellcode which is a block of machine instructions that can execute fr
 Let's continue in x32dbg. We can place a breakpoint at the `lea` instruction, at `0x00402495` in this executable, and run until we reach it. At this point, the buffer has been filled. We step through `lea`, then **step into** `call eax` to follow the code inside it.
 ![x32dbg showing the final byte writes and the lea instruction followed by call eax]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-call-shellcode-on-stack.png' | relative_url }})
 
-> **Note: The addresses in the screenshots**
->
-> In this run, the shellcode starts at `0x0019FD2F`. Stack addresses can differ between runs, so use the address loaded into `EAX` in your own session. Below, `base` means the beginning of this shellcode buffer.
+<aside class="blog-note" aria-label="Note: The addresses in the screenshots">
+  <p class="blog-note__title">Note: The addresses in the screenshots</p>
+  <p>In this run, the shellcode starts at <code>0x0019FD2F</code>. Stack addresses can differ between runs, so use the address loaded into <code>EAX</code> in your own session. Below, <code>base</code> means the beginning of this shellcode buffer.</p>
+</aside>
 
 ### First Layer: XOR with 0x66
 
@@ -572,11 +619,11 @@ and so it begins
 
 The jump skips over this string and reaches the next decoder at `0x0019FD60`.
 
-> **Note: Why does the string look like assembly instructions?**
->
-> The disassembly view tries to interpret bytes as instructions. Those same bytes can also represent text. Here, the jump skips the string, so the CPU does not execute those apparent instructions. The dump view's ASCII column is more useful for reading this data.
->
-> ![x32dbg memory dump showing and so it begins in the ASCII column at address 0019FD50]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-decoded-text.png' | relative_url }})
+<aside class="blog-note" aria-label="Note: Why does the string look like assembly instructions?">
+  <p class="blog-note__title">Note: Why does the string look like assembly instructions?</p>
+  <p>The disassembly view tries to interpret bytes as instructions. Those same bytes can also represent text. Here, the jump skips the string, so the CPU does not execute those apparent instructions. The dump view's ASCII column is more useful for reading this data.</p>
+  <img src="{{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-decoded-text.png' | relative_url }}" alt="x32dbg memory dump showing and so it begins in the ASCII column at address 0019FD50" loading="lazy">
+</aside>
 
 ### Second Layer: A Repeating XOR Key
 

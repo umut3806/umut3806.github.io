@@ -26,7 +26,18 @@ layout: default
   <nav class="post-toc" aria-label="On this page">
     <p>On this page</p>
     <ol>
-      {% for section in page.toc %}<li><a href="#{{ section.id | escape }}">{{ section.title | escape }}</a></li>{% endfor %}
+      {% for section in page.toc %}
+      <li>
+        <a href="#{{ section.id | escape }}">{{ section.title | escape }}</a>
+        {% if section.children %}
+        <ol>
+          {% for subsection in section.children %}
+          <li><a href="#{{ subsection.id | escape }}">{{ subsection.title | escape }}</a></li>
+          {% endfor %}
+        </ol>
+        {% endif %}
+      </li>
+      {% endfor %}
     </ol>
   </nav>
   {% endif %}
