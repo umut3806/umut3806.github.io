@@ -565,7 +565,7 @@ Let's continue in x32dbg. We can place a breakpoint at the `lea` instruction, at
 
 <aside class="blog-note" aria-label="Note: The addresses in the screenshots">
   <p class="blog-note__title">Note: The addresses in the screenshots</p>
-  <p>In this run, the shellcode starts at <code>0x0019FD2F</code>. Stack addresses can differ between runs, so use the address loaded into <code>EAX</code> in your own session. Below, <code>base</code> means the beginning of this shellcode buffer.</p>
+  <p>In this run, the shellcode starts at <code>0x0019FD2F</code>. Stack addresses can differ between runs, so use the address loaded into <code>EAX</code> in your own session.</p>
 </aside>
 
 ### First Layer: XOR with 0x66
