@@ -481,7 +481,7 @@ The program prints virtual addresses and the values we read. We will inspect the
 
 Let's build an x86-64 PE from an **x64 Native Tools Command Prompt for Visual Studio**:
 
-```bat
+```text
 cl /nologo /W4 /Od /Zi /MD /Fe:example.exe example.c /link /DYNAMICBASE /HIGHENTROPYVA /FIXED:NO /INCREMENTAL:NO /MAP:example.map
 ```
 
@@ -700,7 +700,7 @@ What about `ordinary_number` at RVA `0x5004`? There will be no relocation target
 
 Now let's follow the assembly instructions that use these addresses. Our map file places `main` at RVA `0x1000`, or VA `0x140001000` at the preferred base. We can disassemble this executable with:
 
-```bat
+```text
 dumpbin /disasm /nopdb example.exe
 ```
 
