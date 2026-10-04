@@ -35,9 +35,6 @@ toc:
         id: the-address-can-hide-in-data-pointer
   - title: "Let's Make It Concrete"
     id: lets-make-it-concrete
-    children:
-      - title: "PE File"
-        id: pe-file
 ---
 
 Here, we will look at ASLR, PIE and Windows relocations. What the hack are these names in the first place? These names often appear together when we analyze an executable. But what do they actually do? More importantly, why did people need this? Yeah, you may say, it changes the program address basically if you know about it some. But I think we should understand them deeper.
@@ -481,8 +478,6 @@ The global `zeroed` array reserves `0x2000` bytes. Without an explicit initializ
 `local_number` lives in the current stack frame, while the globals live in the executable image. `puts` is an external library function. Its call gives us an import to follow in the PE.
 
 The program prints virtual addresses and the values we read. We will inspect the image base separately in the executable's headers and, for its actual loaded base, in a debugger.
-
-### PE File
 
 Let's build an x86-64 PE from an **x64 Native Tools Command Prompt for Visual Studio**:
 
