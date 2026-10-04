@@ -154,7 +154,7 @@ File offset = section PointerToRawData + offset within section
 
 So, we should not jump to file offset `0x2030` just because the RVA is `0x2030`.
 
-![PE section layout comparing an RVA, a virtual address, and a file offset]({{ '/assets/images/aslr-pie-windows-relocations/09-rva-file-offset-layout.png' | relative_url }})
+![RVA, VA, and file offset]({{ '/assets/images/aslr-pie-windows-relocations/09-rva-file-offset-layout.png' | relative_url }})
 
 I know it was too much terminology. But here, the essence is knowing what VA, RVA, file offset, SizeOfRawData, and VirtualSize are, and what the differences between them are.
 
@@ -164,7 +164,7 @@ Unfortunately, they are not. You can say: "We calculated the address of our stri
 
 Here, `0x00402030` is a **virtual address**. It belongs to the address space of our process. A **physical address**, the RAM-backed real address, identifies the location in physical memory to which that virtual address is translated. Each user-mode Windows process has its own virtual address space.
 
-![The same virtual address in two processes mapped to different physical memory locations]({{ '/assets/images/aslr-pie-windows-relocations/10-process-address-isolation.png' | relative_url }})
+![Separate process address spaces]({{ '/assets/images/aslr-pie-windows-relocations/10-process-address-isolation.png' | relative_url }})
 
 The operating system manages the mappings, and the CPU's memory management unit, or **MMU**, performs the address translation using page tables. We can think of a page table as describing which physical page backs a virtual page, along with access permissions.
 
@@ -203,7 +203,7 @@ Having separate address spaces does not require every virtual page to have a sep
 
 Let's imagine that the same shared page is mapped at different virtual addresses:
 
-![Two processes mapping different virtual addresses to the same shared physical page]({{ '/assets/images/aslr-pie-windows-relocations/01-shared-physical-page.png' | relative_url }})
+![Processes sharing a physical page]({{ '/assets/images/aslr-pie-windows-relocations/01-shared-physical-page.png' | relative_url }})
 
 ```text
 Process A                              Process B
@@ -228,11 +228,11 @@ Both map to physical address:
 
 Also, consecutive virtual pages do not have to occupy consecutive physical pages. Our executable can have a continuous virtual layout while its physical pages are scattered in RAM.
 
-![Consecutive virtual pages mapped to nonconsecutive physical pages in RAM]({{ '/assets/images/aslr-pie-windows-relocations/02-virtual-layout-physical-placement.png' | relative_url }})
+![Virtual and physical page layouts]({{ '/assets/images/aslr-pie-windows-relocations/02-virtual-layout-physical-placement.png' | relative_url }})
 
 Furthermore, virtual memory does not mean that every address has RAM behind it at every moment. Some pages can be temporarily nonresident, with their contents backed by a file on disk. The operating system can bring them into RAM when needed and update the mappings.
 
-![A nonresident virtual page backed by a file and brought into RAM when needed]({{ '/assets/images/aslr-pie-windows-relocations/03-nonresident-page.png' | relative_url }})
+![Loading a nonresident page into RAM]({{ '/assets/images/aslr-pie-windows-relocations/03-nonresident-page.png' | relative_url }})
 
 Okay, now we know what kind of address we are working with. The `ImageBase`, VAs and RVAs from our previous examples describe the executable's virtual layout. They do not tell us its physical placement in RAM.
 
@@ -258,7 +258,7 @@ It makes the locations of selected regions in a process's virtual address space 
 
 For now, we can visualize a movable executable like this:
 
-![Two possible image base addresses under ASLR with the same internal layout]({{ '/assets/images/aslr-pie-windows-relocations/04-aslr-image-placement.png' | relative_url }})
+![Image placement under ASLR]({{ '/assets/images/aslr-pie-windows-relocations/04-aslr-image-placement.png' | relative_url }})
 
 ```text
 Virtual address layout          Virtual address layout
@@ -279,7 +279,7 @@ Okay, we can move an executable to a different virtual base address. But why do 
 
 Imagine a 32-bit x86 function with a local buffer and a conventional stack frame. Its stack can contain a layout like this:
 
-![Conventional x86 stack frame showing the saved return address, saved base pointer, and local buffer]({{ '/assets/images/aslr-pie-windows-relocations/05-conventional-x86-stack-frame.png' | relative_url }})
+![Conventional x86 stack frame]({{ '/assets/images/aslr-pie-windows-relocations/05-conventional-x86-stack-frame.png' | relative_url }})
 
 ```text
 Higher addresses
@@ -333,7 +333,7 @@ Here, the instruction contains the offset `0xFF9`, rather than the complete targ
 
 Let's assume this instruction starts at `0x00401000` and is seven bytes long:
 
-![RIP-relative addressing calculating a target from the next instruction address and displacement]({{ '/assets/images/aslr-pie-windows-relocations/06-rip-relative-addressing.png' | relative_url }})
+![RIP-relative address calculation]({{ '/assets/images/aslr-pie-windows-relocations/06-rip-relative-addressing.png' | relative_url }})
 
 ```text
 Next instruction:  0x00401007
@@ -345,7 +345,7 @@ Displacement:
 
 Now, suppose the image is loaded at a virtual base address `0x00100000` higher:
 
-![The same RIP-relative displacement reaching the target after the image is rebased]({{ '/assets/images/aslr-pie-windows-relocations/07-rip-relative-after-rebase.png' | relative_url }})
+![RIP-relative addressing after rebasing]({{ '/assets/images/aslr-pie-windows-relocations/07-rip-relative-after-rebase.png' | relative_url }})
 
 ```text
 Next instruction:  0x00501007
@@ -369,7 +369,7 @@ Now, imagine that our executable needs to call a function in a shared library. T
 
 We can solve this with an extra step. Instead of encoding a fixed distance directly to that function, our code can access an entry in an address table within its own image. The loader or runtime linker puts the function's runtime virtual address into that entry. Our code reads that address and uses it for the call.
 
-![Relative addressing reaching a table entry that contains an external function address]({{ '/assets/images/aslr-pie-windows-relocations/08-external-module-address-table.png' | relative_url }})
+![External function address table]({{ '/assets/images/aslr-pie-windows-relocations/08-external-module-address-table.png' | relative_url }})
 
 Now we have two steps. Relative addressing gets us to the table entry, which moves together with our code. The address stored in that entry gets us to the function, wherever its library was loaded.
 
@@ -404,7 +404,7 @@ First entry (address):   0x00402000           0x00502000
 Second entry (number):   0x00402000           0x00402000
 ```
 
-![A relocation updating a stored pointer while leaving an ordinary number unchanged]({{ '/assets/images/aslr-pie-windows-relocations/11-pointer-versus-number-relocation.png' | relative_url }})
+![Relocating pointers versus ordinary numbers]({{ '/assets/images/aslr-pie-windows-relocations/11-pointer-versus-number-relocation.png' | relative_url }})
 
 We will see how that works in a more concrete way in the next section.
 
@@ -558,7 +558,7 @@ Now let's open `example.exe` in DiE and follow the file we actually built.
 
 First, let's look at the Optional Header:
 
-![DiE Optional Header showing the preferred image base and section and file alignment]({{ '/assets/images/aslr-pie-windows-relocations/pe-optional-header.png' | relative_url }})
+![PE Optional Header in DiE]({{ '/assets/images/aslr-pie-windows-relocations/pe-optional-header.png' | relative_url }})
 
 Our `ImageBase` is `0x140000000`. As we discussed earlier, this is the preferred **virtual** base address. It tells us where the image was built to live. We have opened a file on disk, so we have not yet observed where Windows actually loads it.
 
@@ -566,13 +566,13 @@ We can also see `SectionAlignment = 0x1000` and `FileAlignment = 0x200`. Section
 
 The same header contains `DllCharacteristics = 0x8160`. Despite its name, this field also applies to our executable. Opening its Flags menu gives us something easier to read:
 
-![DiE DllCharacteristics flags with DYNAMIC_BASE and HIGH_ENTROPY_VA enabled]({{ '/assets/images/aslr-pie-windows-relocations/pe-aslr-flags.png' | relative_url }})
+![ASLR flags in DiE]({{ '/assets/images/aslr-pie-windows-relocations/pe-aslr-flags.png' | relative_url }})
 
 `DYNAMIC_BASE` is checked. This is the flag set by [`/DYNAMICBASE`](https://learn.microsoft.com/en-us/cpp/build/reference/dynamicbase-use-address-space-layout-randomization), marking the image as supporting ASLR. `HIGH_ENTROPY_VA` is checked too. So our 64-bit image supports the wider range of randomized virtual addresses described by [`/HIGHENTROPYVA`](https://learn.microsoft.com/en-us/cpp/build/reference/highentropyva-support-64-bit-aslr).
 
 Now let's open the section table and look at `.data`:
 
-![DiE section table showing the data section RVA, file offset, raw size, and virtual size]({{ '/assets/images/aslr-pie-windows-relocations/pe-sections.png' | relative_url }})
+![PE section table]({{ '/assets/images/aslr-pie-windows-relocations/pe-sections.png' | relative_url }})
 
 | Field              | Value    | Meaning                                                                                                    |
 | ------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
@@ -604,7 +604,7 @@ Okay, but which addresses belong to our variables? The section table does not na
   <p class="blog-note__title">Note &middot; What Is a <code>.map</code> File?</p>
   <p>A map file is a plain-text report produced by the linker when it builds a program. It describes the layout and lists symbols, such as function and global-variable names, alongside their locations. This gives us a way to connect a name in our C code to a location in the executable.</p>
   <p>In our MSVC build, <code>/MAP:example.map</code> asks the linker to write this report to <code>example.map</code>. We can open it in any text editor. Microsoft's <a href="https://learn.microsoft.com/en-us/cpp/build/reference/map-generate-mapfile"><code>/MAP</code> documentation</a> describes its contents.</p>
-  <img src="{{ '/assets/images/aslr-pie-windows-relocations/pe-map-file.png' | relative_url }}" alt="MSVC map file listing global variables and their addresses at the preferred image base" loading="lazy">
+  <img src="{{ '/assets/images/aslr-pie-windows-relocations/pe-map-file.png' | relative_url }}" alt="MSVC map file symbols" loading="lazy">
   <p>The <code>Rva+Base</code> column uses the preferred image base. For example, it lists <code>pointer</code> at <code>0x140005008</code>. Subtracting our preferred base, <code>0x140000000</code>, gives RVA <code>0x5008</code>. If ASLR selects another base when the program runs, we add that loaded base to the RVA to find the variable's runtime virtual address.</p>
 </aside>
 
@@ -630,7 +630,7 @@ Now, let's inspect the bytes stored in `pointer` and find the relocation record 
 
 We have calculated where `pointer` is stored. Now let's look at what is stored there. In DiE's Hex view, the eight selected bytes start at file offset `0x2E08`:
 
-![DiE Hex view showing the eight bytes of the stored pointer at file offset 0x2E08]({{ '/assets/images/aslr-pie-windows-relocations/pe-pointer-bytes.png' | relative_url }})
+![Stored pointer bytes in DiE]({{ '/assets/images/aslr-pie-windows-relocations/pe-pointer-bytes.png' | relative_url }})
 
 ```text
 File offset:  0x2E08
@@ -644,7 +644,7 @@ If the image moves, that stored address needs to change. Okay, but where is the 
 
 Let's select `.reloc` in the section table and look at its bytes:
 
-![DiE Hex view showing the base relocation table in the reloc section]({{ '/assets/images/aslr-pie-windows-relocations/pe-base-relocations.png' | relative_url }})
+![PE base relocation table]({{ '/assets/images/aslr-pie-windows-relocations/pe-base-relocations.png' | relative_url }})
 
 In this file, `.reloc` starts at file offset `0x3400`. The table groups relocations into blocks for 4 KB (0x1000) RVA pages. Each block starts with a four-byte **Page RVA** and a four-byte **Block Size**, followed by two-byte entries. Block Size includes the header and entries. Microsoft describes this layout in its [base relocation documentation](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#base-relocation-block).
 
@@ -666,7 +666,7 @@ Next block's file offset: 0x3400 + 0x2C = 0x342C
 
 At `0x342C`, we find:
 
-![Selected relocation block for page RVA 0x5000 with the DIR64 entry targeting RVA 0x5008]({{ '/assets/images/aslr-pie-windows-relocations/pe-relocation-block-selected.png' | relative_url }})
+![Selected DIR64 relocation block]({{ '/assets/images/aslr-pie-windows-relocations/pe-relocation-block-selected.png' | relative_url }})
 
 ```text
 00 50 00 00 | 0C 00 00 00 | 08 A0 | 00 00
@@ -693,7 +693,7 @@ Type `0xA` (decimal `10`) means **DIR64**, adjust the 64-bit field. The offset i
 Target RVA: 0x5000 + 0x008 = 0x5008
 ```
 
-![A DIR64 relocation entry split into its type and offset to identify the pointer field]({{ '/assets/images/aslr-pie-windows-relocations/12-dir64-relocation-entry.png' | relative_url }})
+![DIR64 relocation type and offset]({{ '/assets/images/aslr-pie-windows-relocations/12-dir64-relocation-entry.png' | relative_url }})
 
 Yes, surprisingly this is where `pointer` is stored :)
 
@@ -751,7 +751,7 @@ Next instruction VA + displacement:
 
 It reads the eight-byte address stored there into `rax`. At the preferred base, that address is `0x140005000`. What happens if the image moves? Do you remember the relocation we discussed above? Yes, the relocation prepares the pointer's value for the new base. So two mechanisms cooperate. RIP-relative addressing finds the pointer field, and the base relocation corrects the address inside it.
 
-![RIP-relative addressing locating a relocated pointer before dereferencing it]({{ '/assets/images/aslr-pie-windows-relocations/13-reading-through-relocated-pointer.png' | relative_url }})
+![Reading through a relocated pointer]({{ '/assets/images/aslr-pie-windows-relocations/13-reading-through-relocated-pointer.png' | relative_url }})
 
 The second instruction reads four bytes from the address now in `rax`, obtaining `42`. This is the dereference. We first read an address from `pointer`, then read the integer at that address.
 
@@ -788,11 +788,11 @@ During our repeated runs, the global variables kept appearing at the same virtua
 
 Here is one run before the restart:
 
-![Program output showing global variable, pointer, and stack addresses before restarting Windows]({{ '/assets/images/aslr-pie-windows-relocations/pe-runtime-first-boot.png' | relative_url }})
+![Runtime addresses before restarting Windows]({{ '/assets/images/aslr-pie-windows-relocations/pe-runtime-first-boot.png' | relative_url }})
 
 And here is the run after restarting Windows:
 
-![Program output showing global variable, pointer, and stack addresses after restarting Windows]({{ '/assets/images/aslr-pie-windows-relocations/pe-runtime-after-restart.png' | relative_url }})
+![Runtime addresses after restarting Windows]({{ '/assets/images/aslr-pie-windows-relocations/pe-runtime-after-restart.png' | relative_url }})
 
 These outputs show the addresses of our variables, rather than the image base itself. But we already know that `number` has RVA `0x5000`, so we can work backward:
 

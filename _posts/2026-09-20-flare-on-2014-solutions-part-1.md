@@ -66,7 +66,7 @@ file Challenge1.exe
 Challenge1.exe: PE32 executable (GUI) Intel 80386 Mono/.Net assembly, for MS Windows
 ```
 
-![file output identifying Challenge1.exe as a PE32 Windows GUI executable and a .NET assembly]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-file-identification.png' | relative_url }})
+![Challenge 1 executable identification]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-file-identification.png' | relative_url }})
 
 We have a Windows GUI executable. The interesting part here is `Mono/.Net assembly`. This tells us that we are dealing with a .NET assembly, so we can open it in a .NET decompiler such as dnSpy and inspect the code.
 
@@ -77,11 +77,11 @@ We have a Windows GUI executable. The interesting part here is `Mono/.Net assemb
 
 Let's look at the program running it.
 
-![Challenge 1 window showing Bob Ross, the message Let's start with something easy, and a DECODE button]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-before-decode.png' | relative_url }})
+![Challenge 1 before decoding]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-before-decode.png' | relative_url }})
 
 We have Bob Ross, a message saying "Let's start with something easy!", and a `DECODE!` button. Let's click it.
 
-![Challenge 1 after clicking DECODE, showing a Doge face on Bob Ross and unreadable text above the image]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-after-decode.png' | relative_url }})
+![Challenge 1 after decoding]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-after-decode.png' | relative_url }})
 
 Okay, Bob Ross became Bob Doge, but the text is not very helpful :))
 
@@ -244,7 +244,7 @@ this.lbl_title.Text = text3;
 
 Then, we run the application under dnSpy's debugger and click `DECODE!`. When execution reaches the breakpoint, all three loops have finished. The label assignment has not executed yet, so this is a useful place to inspect the local variables.
 
-![dnSpy paused before the label assignment, with the decoded flag visible in the text local variable and scrambled values in text2 and text3]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-dnspy-decoded-flag.png' | relative_url }})
+![Decoded flag in dnSpy]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-01-dnspy-decoded-flag.png' | relative_url }})
 
 Look at `text` in the Locals panel:
 
@@ -276,7 +276,7 @@ Why would a page include a PNG file as PHP code? Normally, we would expect an im
 
 Let's check the strings inside `flare-on.png`.
 
-![Strings extracted from flare-on.png, showing an IEND marker followed by PHP code containing the terms and order arrays]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-02-php-hidden-in-png.png' | relative_url }})
+![PHP code hidden in PNG]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-02-php-hidden-in-png.png' | relative_url }})
 
 We can see `IEND`, which marks the final PNG chunk, followed by `<?php` at offset `0x19C4`. There is PHP code appended after the image data.
 
@@ -467,11 +467,11 @@ Let's check the file with `file` command:
 such_evil: PE32 executable (console) Intel 80386 (stripped to external PDB), for MS Windows
 ```
 
-![file output identifying such_evil as a PE32 Windows console executable]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-file-identification.png' | relative_url }})
+![Challenge 3 executable identification]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-file-identification.png' | relative_url }})
 
 This is a x86 32-bit Windows executable. Let's open it in IDA and look at the entry point.
 
-![IDA entry-point code calling runtime functions, sub_401000, and exit]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-ida-entry-point.png' | relative_url }})
+![Challenge 3 entry point in IDA]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-ida-entry-point.png' | relative_url }})
 
 We see some runtime initialization, followed by a call to `sub_401000`. Let's follow `sub_401000`.
 
@@ -561,7 +561,7 @@ call    eax
 This is a shellcode which is a block of machine instructions that can execute from memory.
 
 Let's continue in x32dbg. We can place a breakpoint at the `lea` instruction, at `0x00402495` in this executable, and run until we reach it. At this point, the buffer has been filled. We step through `lea`, then **step into** `call eax` to follow the code inside it.
-![x32dbg showing the final byte writes and the lea instruction followed by call eax]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-call-shellcode-on-stack.png' | relative_url }})
+![Calling shellcode on the stack]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-call-shellcode-on-stack.png' | relative_url }})
 
 <aside class="blog-note" aria-label="Note: The addresses in the screenshots">
   <p class="blog-note__title">Note: The addresses in the screenshots</p>
@@ -609,7 +609,7 @@ First byte to XOR:   0x0019FD50
 
 We can place a breakpoint on the final jump at `0x0019FD4B` and let this loop finish.
 
-![x32dbg paused after the first XOR loop, with the next region decoded]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-xor-66.png' | relative_url }})
+![First XOR decoder in x32dbg]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-xor-66.png' | relative_url }})
 
 The bytes beginning at `0x0019FD50` now contain:
 
@@ -622,7 +622,7 @@ The jump skips over this string and reaches the next decoder at `0x0019FD60`.
 <aside class="blog-note" aria-label="Note: Why does the string look like assembly instructions?">
   <p class="blog-note__title">Note: Why does the string look like assembly instructions?</p>
   <p>The disassembly view tries to interpret bytes as instructions. Those same bytes can also represent text. Here, the jump skips the string, so the CPU does not execute those apparent instructions. The dump view's ASCII column is more useful for reading this data.</p>
-  <img src="{{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-decoded-text.png' | relative_url }}" alt="x32dbg memory dump showing and so it begins in the ASCII column at address 0019FD50" loading="lazy">
+  <img src="{{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-1-decoded-text.png' | relative_url }}" alt="Decoded text in x32dbg memory" loading="lazy">
 </aside>
 
 ### Second Layer: A Repeating XOR Key
@@ -695,7 +695,7 @@ Key:      n     o     p ...     s      n      o ...
 
 We let the loop finish and stop at its exit jump, `0x0019FD9E` in this run.
 
-![x32dbg showing the nopasaurus decoder after its loop has finished]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-2-nopasaurus-xor.png' | relative_url }})
+![Completed nopasaurus XOR decoder]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-2-nopasaurus-xor.png' | relative_url }})
 
 Another string appears in the decoded region:
 
@@ -730,7 +730,7 @@ A `dword` is four bytes. Each iteration XORs four bytes at once, then advances t
 
 So, this is equivalent to XORing individual bytes with the repeating key `bOlG`.
 
-![x32dbg paused at the conditional jump at 0019FDE7, before the four-byte XOR instruction]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-3-dword-xor.png' | relative_url }})
+![Four-byte XOR decoder in x32dbg]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-3-dword-xor.png' | relative_url }})
 
 Once this loop finishes, we can follow the newly decoded instructions.
 
@@ -758,7 +758,7 @@ That is a fair question. This key is 24 bytes long, which matches the `add eax, 
 
 The decoder follows the same pattern as the `nopasaurus` loop: `EBX` walks through the key, `ESI` walks through the encoded data, and the key pointer resets when it reaches the end. This time, the encoded region is `0xD6` bytes long.
 
-![x32dbg paused after the fourth decoder, showing the key setup, XOR loop, and decoded bytes following its exit jump]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-4-final-flag-decoder.png' | relative_url }})
+![Final flag decoder in x32dbg]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-stage-4-final-flag-decoder.png' | relative_url }})
 
 Let's look more closely at how the data address is calculated:
 
@@ -785,15 +785,15 @@ We can record the starting value of `ESI`, follow that address in the dump, and 
 
 After the fourth loop, we can inspect the decoded region directly. Another option is to search the stack memory region for the ASCII string `flare-on`.
 
-![x32dbg Find Pattern dialog searching for the ASCII string flare-on]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-search-flare-on-string.png' | relative_url }})
+![Searching for flare-on in x32dbg]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-search-flare-on-string.png' | relative_url }})
 
 The search finds a match at `0x0019FE6A`:
 
-![Search result showing the bytes for flare-on at address 0019FE6A]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-flag-search-result.png' | relative_url }})
+![Flag search result]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-flag-search-result.png' | relative_url }})
 
 Let's follow that result in the dump and look at the bytes before it as well.
 
-![Memory dump showing the decoded email address beginning at 0019FE59]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-decoded-flag-memory-dump.png' | relative_url }})
+![Decoded flag in memory]({{ '/assets/images/flare-on-2014-solutions-part-1/challenge-03-decoded-flag-memory-dump.png' | relative_url }})
 
 The flag starts at `0x0019FE59`, exactly where this decoding stage began:
 
