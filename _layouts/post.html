@@ -5,7 +5,7 @@ layout: default
 <link rel="stylesheet" href="{{ '/assets/css/blog-images.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/blog.css' | relative_url }}">
 
-<article class="blog-post">
+<article class="blog-post{% if page.toc %} blog-post--with-toc{% endif %}">
   <nav class="post-breadcrumb" aria-label="Breadcrumb">
     <a href="{{ '/blogs/' | relative_url }}">&larr; All blogs</a>
     <span aria-hidden="true">/</span>
@@ -22,29 +22,39 @@ layout: default
     </dl>
     {% endif %}
   </div>
-  {% if page.toc %}
-  <nav class="post-toc" aria-label="On this page">
-    <p>On this page</p>
-    <ol>
-      {% for section in page.toc %}
-      <li>
-        <a href="#{{ section.id | escape }}">{{ section.title | escape }}</a>
-        {% if section.children %}
-        <ol>
-          {% for subsection in section.children %}
-          <li><a href="#{{ subsection.id | escape }}">{{ subsection.title | escape }}</a></li>
-          {% endfor %}
-        </ol>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ol>
-  </nav>
-  {% endif %}
-  <div class="post-content">
-  {{ content }}
+  <div class="post-body">
+    {% if page.toc %}
+    <aside class="post-toc-sidebar">
+      <nav class="post-toc" aria-label="On this page">
+        <details class="post-toc__details" open>
+          <summary class="post-toc__title">On this page</summary>
+          <div class="post-toc__links">
+            <ol>
+              {% for section in page.toc %}
+              <li>
+                <a href="#{{ section.id | escape }}">{{ section.title | escape }}</a>
+                {% if section.children %}
+                <ol>
+                  {% for subsection in section.children %}
+                  <li><a href="#{{ subsection.id | escape }}">{{ subsection.title | escape }}</a></li>
+                  {% endfor %}
+                </ol>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ol>
+          </div>
+        </details>
+      </nav>
+    </aside>
+    {% endif %}
+    <div class="post-main">
+      <div class="post-content">
+        {{ content }}
+      </div>
+      <footer class="post-footer"><a href="{{ '/blogs/' | relative_url }}">&larr; Back to all blogs</a><a href="#main_content">Back to top &uarr;</a></footer>
+    </div>
   </div>
-  <footer class="post-footer"><a href="{{ '/blogs/' | relative_url }}">&larr; Back to all blogs</a><a href="#main_content">Back to top &uarr;</a></footer>
 </article>
 
 <dialog class="image-viewer" aria-label="Enlarged blog image">
@@ -63,3 +73,4 @@ layout: default
 </dialog>
 
 <script src="{{ '/assets/js/blog-images.js' | relative_url }}" defer></script>
+{% if page.toc %}<script src="{{ '/assets/js/blog-toc.js' | relative_url }}" defer></script>{% endif %}

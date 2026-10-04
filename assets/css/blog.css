@@ -1,4 +1,4 @@
-/* Layout helpers only: fonts, text colors, and code styling come from the theme. */
+/* Blog layout and navigation; article typography and code styling come from the theme. */
 .post-breadcrumb {
   display: flex;
   flex-wrap: wrap;
@@ -28,27 +28,104 @@
   overflow-wrap: anywhere;
 }
 
-.post-toc {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed rgba(181, 232, 83, 0.35);
+.post-main,
+.post-toc-sidebar {
+  min-width: 0;
 }
 
-.post-toc > ol {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem 2rem;
-  padding-left: 1.5rem;
+.post-content {
+  overflow-wrap: anywhere;
+}
+
+.post-toc {
+  margin-bottom: 2rem;
+  border: 1px solid rgba(181, 232, 83, 0.25);
+  border-radius: 4px;
+  background: #151515;
+  font-size: 0.85rem;
+}
+
+.post-toc__title {
+  padding: 1rem;
+  color: #b5e853;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.post-toc__links {
+  padding: 0 0.5rem 0.75rem;
+}
+
+.post-toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .post-toc ol ol {
-  margin: 0.5rem 0 0;
-  padding-left: 1.5rem;
-  list-style-type: lower-alpha;
+  margin-left: 0.75rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid rgba(181, 232, 83, 0.2);
 }
 
-.post-toc ol ol li + li {
-  margin-top: 0.4rem;
+.post-toc a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid transparent;
+  border-radius: 2px;
+  color: #bbb;
+  text-decoration: none;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+
+.post-toc a:hover {
+  background: rgba(181, 232, 83, 0.06);
+  color: #eee;
+}
+
+.post-toc a[aria-current="location"] {
+  border-left-color: #b5e853;
+  background: rgba(181, 232, 83, 0.09);
+  color: #b5e853;
+}
+
+.post-toc a:focus-visible,
+.post-toc__title:focus-visible {
+  outline: 2px solid #b5e853;
+  outline-offset: -2px;
+}
+
+@media (min-width: 1100px) {
+  .container:has(.blog-post--with-toc) {
+    max-width: 1280px;
+  }
+
+  .blog-post--with-toc .post-breadcrumb,
+  .blog-post--with-toc .post-header {
+    margin-left: 17rem;
+  }
+
+  .blog-post--with-toc .post-body {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .post-toc {
+    position: sticky;
+    top: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  .post-toc__links {
+    max-height: calc(100vh - 8rem);
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #151515;
+    scroll-padding-block: 0.5rem;
+  }
 }
 
 .post-content h2,
@@ -113,6 +190,5 @@
 }
 
 @media (max-width: 600px) {
-  .post-toc > ol { grid-template-columns: 1fr; }
   .post-content .blog-note { padding: 1rem; }
 }
