@@ -30,9 +30,9 @@ toc:
     id: two-problems-relative-addressing-cant-address
     children:
       - title: "1. The Target Can Live in Another Module"
-        id: the-target-can-live-in-another-module
+        id: 1-the-target-can-live-in-another-module
       - title: "2. The Address Can Hide in Data (Pointer)"
-        id: the-address-can-hide-in-data-pointer
+        id: 2-the-address-can-hide-in-data-pointer
   - title: "Let's Make It Concrete"
     id: lets-make-it-concrete
 ---
