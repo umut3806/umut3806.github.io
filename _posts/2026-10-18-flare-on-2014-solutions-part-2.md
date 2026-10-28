@@ -2,45 +2,44 @@
 layout: post
 title: "FLARE-On 2014 Solutions Part 2 (Challenges 4, 5, 6 and 7)"
 date: 2026-10-18
-description: Shellcode in a PDF, a Linux binary that builds its own code and a payload that needs the right environment
 permalink: /blogs/flare-on-2014-solutions-part-2/
 category: Reverse engineering
 toc:
-- title: Challenge 4
-  id: challenge-4
-  children:
-  - title: First look with pdfid
-    id: first-look-with-pdfid
-  - title: Following the chain with pdf-parser
-    id: following-the-chain-with-pdf-parser
-  - title: Extracting object 6
-    id: extracting-object-6
-- title: Challenge 5
-  id: challenge-5
-  children:
-  - title: Analyzing DllMain
-    id: analyzing-dllmain
-  - title: Listening to the keyboard
-    id: listening-to-the-keyboard
-  - title: The light-bulb state machine
-    id: the-light-bulb-state-machine
-  - title: Solving it with a script
-    id: solving-it-with-a-script
-- title: Challenge 6
-  id: challenge-6
-- title: Challenge 7
-  id: challenge-7
-  children:
-  - title: First look at _main
-    id: first-look-at-_main
-  - title: The encrypted blob
-    id: the-encrypted-blob
-  - title: Unpacking without running it
-    id: unpacking-without-running-it
-  - title: 'gratz.exe: the last stage'
-    id: gratzexe-the-last-stage
-- title: Wrapping up
-  id: wrapping-up
+  - title: Challenge 4
+    id: challenge-4
+    children:
+      - title: First look with pdfid
+        id: first-look-with-pdfid
+      - title: Following the chain with pdf-parser
+        id: following-the-chain-with-pdf-parser
+      - title: Extracting object 6
+        id: extracting-object-6
+  - title: Challenge 5
+    id: challenge-5
+    children:
+      - title: Analyzing DllMain
+        id: analyzing-dllmain
+      - title: Listening to the keyboard
+        id: listening-to-the-keyboard
+      - title: The light-bulb state machine
+        id: the-light-bulb-state-machine
+      - title: Solving it with a script
+        id: solving-it-with-a-script
+  - title: Challenge 6
+    id: challenge-6
+  - title: Challenge 7
+    id: challenge-7
+    children:
+      - title: First look at _main
+        id: first-look-at-_main
+      - title: The encrypted blob
+        id: the-encrypted-blob
+      - title: Unpacking without running it
+        id: unpacking-without-running-it
+      - title: "gratz.exe: the last stage"
+        id: gratzexe-the-last-stage
+  - title: Wrapping up
+    id: wrapping-up
 author: Umut Bayram
 ---
 
@@ -49,11 +48,13 @@ Today, we will solve challenges 4, 5, 6 and 7 of Flare-On 2014. As always, we wi
 For the Windows files, we use FLARE VM. For the Linux file, we use REMnux. Let's start.
 
 ## Challenge 4
+
 {: #challenge-4}
 
 In this challenge, we have a PDF file: `APT9001.pdf`.
 
 ### First look with pdfid
+
 {: #first-look-with-pdfid}
 
 We start with `pdfid`. It reads all the bytes of the file and counts some risky keywords. So in a few seconds, it tells us where to look.
@@ -68,6 +69,7 @@ For us, three lines are important. `/OpenAction 1(1)` shows that something runs 
 </aside>
 
 ### Following the chain with pdf-parser
+
 {: #following-the-chain-with-pdf-parser}
 
 pdfid shows us what is in the file. Now we use `pdf-parser` to see the objects and the links between them:
@@ -133,6 +135,7 @@ pdf-parser -n APT9001.pdf
 Now we see the real bytes. In object 5, `/#53` is `/S`, `/#4aav#61#53cr#69pt` is `/JavaScript` and `/#4a#53` is `/JS`. Even `/Type` and `/Page` in object 4 are hidden (`/T#79pe`, `/Pa#67e`). In the normal output, only the filter names stayed hidden, because pdf-parser reads this broken array as a string.
 
 ### Extracting object 6
+
 {: #extracting-object-6}
 
 First, we try the normal way. `-f` applies the filters and `-d` writes the result to a file:
@@ -288,6 +291,7 @@ wa1ch.d3m.spl01ts@flare-on.com
 ```
 
 ## Challenge 5
+
 {: #challenge-5}
 
 This time we have a file named as `5get_it`. First, we put the file into DiE to see the general structure.
@@ -309,6 +313,7 @@ Two things are important here. The file is a **32-bit** DLL (PE32), and it has *
 In this challenge, we will not run the DLL. We follow the code statically in IDA, and the pseudocode will be enough to solve the challenge.
 
 ### Analyzing DllMain
+
 {: #analyzing-dllmain}
 
 When we open the DLL in IDA, we land on the entry point, `DllEntryPoint`:
@@ -399,6 +404,7 @@ DllMain
 ```
 
 ### Listening to the keyboard
+
 {: #listening-to-the-keyboard}
 
 At the end of `DllMain`, `sub_1000A4C0` runs in every case. Let's open it:
@@ -443,6 +449,7 @@ sub_1000A4C0  (runs forever)
 The log file is not our goal, though. The flag must be somewhere else. Let's look at the handlers more closely.
 
 ### The light-bulb state machine
+
 {: #the-light-bulb-state-machine}
 
 Here is the handler of the `a` key:
@@ -519,6 +526,7 @@ Be careful. A handler can have more than one transition, because the same letter
 If we count the lines in `_cfltcvt_init`, there are about 40 bulbs. Following each one by hand means searching for the `= 1` line of every bulb in about 40 handler functions. This is slow, and it is easy to make a mistake. But the pattern is very regular, so this is a job for a script.
 
 ### Solving it with a script
+
 {: #solving-it-with-a-script}
 
 I used an LLM to write the below script:
@@ -594,6 +602,7 @@ l0gging.ur.5tr0ke5@flare-on.com
 ```
 
 ## Challenge 6
+
 {: #challenge-6}
 
 In this challenge, we have a 64-bit ELF file. Its name is `e7bc5d2c0cf4480348f5504196561297`.
@@ -1082,6 +1091,7 @@ x86 is little-endian, so we read the bytes in reverse order. The port is `0x029a
 So with the correct password, this is a **reverse shell** to `9.30.75.86:39426`. Do not test it on a machine with internet access.
 
 ## Challenge 7
+
 {: #challenge-7}
 
 Before IDA, let's take a first look with Detect It Easy:
@@ -1099,7 +1109,8 @@ DiE sees that the `.data` section has very high entropy. Random-looking data has
 Let's start.
 
 ### First look at `_main`
-{: #first-look-at-_main}
+
+{: #first-look-at-\_main}
 
 We open the file in IDA and we go to `_main`. The start of the function looks like this:
 
@@ -1195,6 +1206,7 @@ After the fix and decompilation process, the listing looks much better:
 Now we can see the real start of `_main`. It calls many functions one after another. We see a long list of calls at the top, a small loop in the middle and some file work at the end. We will come back to this screenshot many times.
 
 ### The encrypted blob
+
 {: #the-encrypted-blob}
 
 #### sub_401030: the first layer
@@ -1668,6 +1680,7 @@ So the list is a small museum of anti-debug and anti-VM tricks. Some checks look
 Of course we will not try to set up these conditions. We will decrypt it statically.
 
 ### Unpacking without running it
+
 {: #unpacking-without-running-it}
 
 Our plan is simple: we write every layer again in Python, and we produce `gratz.exe` ourselves.
@@ -1860,6 +1873,7 @@ Only one of the 1024 combinations (`Matches: 1`) gives a DOS header. Now we can 
 Most of our guesses were right: no debugger, no VM, Friday, 17:00. But look at `sub_401590`. The winning branch is **other IP**, not `127.0.0.1`. So the author did not want `www.dogecoin.com` to point to localhost. The `127.0.0.1` branch was a trap. Good that we did not trust our guess there.
 
 ### gratz.exe: the last stage
+
 {: #gratzexe-the-last-stage}
 
 We have a new file, so let's do the same thing as at the start and open it in DiE:
@@ -2007,6 +2021,7 @@ how you completed the challenges and then
 So, that was the end. Phew, what a long and tiring challenge.
 
 ## Wrapping up
+
 {: #wrapping-up}
 
 Here are all the flags:
