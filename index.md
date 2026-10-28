@@ -24,3 +24,7 @@ I like digging into how things work, why they break, and what we can learn from 
 Think of these posts as a chance to sit down and work through an interesting problem together. I want to share the questions, reasoning, and small discoveries that help things make sense. Whether you're exploring a topic for the first time or bringing your own experience to it, I hope you find something useful here.
 
 If you have a question, spot a mistake, or just want to talk about something interesting, [say hello on LinkedIn](https://www.linkedin.com/in/umut-bayram-166933242/). I'd love to hear what you're learning, too.
+
+## Disclaimer
+
+All content on this site, including articles, code, tools, and examples, is provided for educational and informational purposes only. Use any techniques described here only on systems you own or have explicit permission to test. You are solely responsible for your actions and for complying with applicable laws. I do not endorse unauthorized or malicious activity and accept no responsibility for any misuse of this content or any resulting damage.
