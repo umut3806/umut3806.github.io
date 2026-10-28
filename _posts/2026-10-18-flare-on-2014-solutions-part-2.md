@@ -14,6 +14,12 @@ toc:
         id: following-the-chain-with-pdf-parser
       - title: Extracting object 6
         id: extracting-object-6
+      - title: From JavaScript to bytes
+        id: from-javascript-to-bytes
+      - title: Emulating the shellcode
+        id: emulating-the-shellcode
+      - title: Finding the flag in x32dbg
+        id: finding-the-flag-in-x32dbg
   - title: Challenge 5
     id: challenge-5
     children:
@@ -27,6 +33,23 @@ toc:
         id: solving-it-with-a-script
   - title: Challenge 6
     id: challenge-6
+    children:
+      - title: Finding main
+        id: finding-main
+      - title: Checking the first argument
+        id: checking-the-first-argument
+      - title: Investigating the fake segfault
+        id: investigating-the-fake-segfault
+      - title: Bypassing the ptrace check
+        id: bypassing-the-ptrace-check
+      - title: Skipping the sleep
+        id: skipping-the-sleep
+      - title: Following the stack code
+        id: following-the-stack-code
+      - title: Recovering the second argument
+        id: recovering-the-second-argument
+      - title: The reverse shell
+        id: the-reverse-shell
   - title: Challenge 7
     id: challenge-7
     children:
@@ -164,6 +187,9 @@ open("obj6.js", "wb").write(js)
 
 ![Decoded PDF JavaScript code]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-04-object-6-javascript.png' | relative_url }})
 
+## From JavaScript to bytes
+{: #from-javascript-to-bytes}
+
 The result is obfuscated JavaScript. The variable names are long and random, and the code is hard to read. While we try to deobfuscate it, we see this line (it is shortened here):
 
 ```javascript
@@ -218,6 +244,9 @@ Why is there an `h` before each part? `68` is the opcode of `push imm32`, and `6
 
 These are Windows API and DLL names. Normal programs import their functions and do not build their names on the stack like this. Shellcode has no import table, so it often loads DLLs and finds functions by itself, with `LoadLibraryA`. So this file is probably shellcode. It probably loads user32 and shows a message box with the text "OWNED!!!". Let's check this with an emulator.
 
+## Emulating the shellcode
+{: #emulating-the-shellcode}
+
 scdbg is a shellcode emulator. It runs the code in a safe environment. It shows the Windows API calls of the shellcode, and it does not change our system. Let's try it:
 
 ![Unsupported opcode in scdbg]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-04-scdbg-unsupported-opcode.png' | relative_url }})
@@ -244,6 +273,9 @@ That is OK for now. Let's run one of these start points that work without an err
 ![Shellcode emulation API calls]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-04-scdbg-shellcode-emulation.png' | relative_url }})
 
 Now it works. Execution starts at `0x153`, slides through the junk bytes and reaches the real code. The shellcode finds `LoadLibraryA` with `GetProcAddress`, loads `user32`, finds `MessageBoxA` and shows a message box. The title is `OWNED!!!`, so our guess from HxD was correct. But the message text is garbage. Remember this, because we will come back to it.
+
+## Finding the flag in x32dbg
+{: #finding-the-flag-in-x32dbg}
 
 We got a lot of information from the emulation and the API calls. Now let's use the garbage text as a clue. The title `OWNED!!!` is clean, but the text is not. So maybe the shellcode builds the text correctly and then changes it before it calls `MessageBoxA`. Let's watch this in a debugger.
 
@@ -615,6 +647,9 @@ It is a 64-bit ELF for AMD64, little-endian, built with GCC 4.6.3 on Ubuntu. The
 
 DiE also says Go 1.24.1. This cannot be correct, because if we think about that, Go 1.24 came out in 2025 and this challenge is from 2014. DiE uses signatures and heuristics, so sometimes it guesses wrong.
 
+## Finding main
+{: #finding-main}
+
 Let's start with the entry point in IDA:
 
 ![ELF entry point in IDA]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-06-ida-entry-point.png' | relative_url }})
@@ -674,6 +709,9 @@ byte_729AB9 = "Django"[0];   // 'D'
 
 It takes the **first character** of a string and writes it to a global byte. It does this many times, with strings like `"Django"`, `"ascii"` and `"imap"`. There are also hundreds of `sub_XXXX(argc, argv)` calls, and they do the same thing. All these bytes go to the area around `0x729900`. So the question is: what does this function build there? Let's remember this question. The binary will answer it later.
 
+## Checking the first argument
+{: #checking-the-first-argument}
+
 Before we go deeper, let's simply run the binary with zero, one and two arguments:
 
 ![Initial command line argument tests]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-06-initial-argument-tests.png' | relative_url }})
@@ -715,6 +753,9 @@ The first argument is **`4815162342`**.
 Now we know the first argument. Let's run the program with it and any second argument:
 
 ![Execution with correct first argument]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-06-correct-first-argument.png' | relative_url }})
+
+## Investigating the fake segfault
+{: #investigating-the-fake-segfault}
 
 Nothing happens. The program does not print anything, and it does not exit. It only waits. But when we run it in gdb:
 
@@ -772,6 +813,9 @@ This is the same value that gdb showed. So `sub_45E790` is `exit`. Let's rename 
   </table>
 </aside>
 
+## Bypassing the ptrace check
+{: #bypassing-the-ptrace-check}
+
 Now let's come back to the possible debugger check.
 
 On Linux, the most common debugger check is `ptrace(PTRACE_TRACEME, 0, 0, 0)`. A process can have only one tracer. gdb is already the tracer, so this call fails. Then the program knows that a debugger is there. Let's check if our program calls ptrace. In IDA, we can go up from the fake SIGSEGV block that we found before and look at the block that jumps to it:
@@ -825,6 +869,9 @@ From now on, we start gdb like this:
 gdb -x bypass.gdb ./e7bc5d2c0cf4480348f5504196561297
 ```
 
+## Skipping the sleep
+{: #skipping-the-sleep}
+
 Now we bypassed the debugger check, but there is still one problem. The program prints nothing and waits. Let's press **Ctrl+C** and look at the state:
 
 ![Sleeping process backtrace in gdb]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-06-gdb-sleep-backtrace.png' | relative_url }})
@@ -856,6 +903,9 @@ end
 With the `$rax == -38` condition, we change the value only at the start of the syscall. When we run it again:
 
 ![Silent exit after bypassing checks]({{ '/assets/images/flare-on-2014-solutions-part-2/challenge-06-gdb-silent-exit.png' | relative_url }})
+
+## Following the stack code
+{: #following-the-stack-code}
 
 There is no message, and the code is new: `036` = 30. No `exit()` call in IDA matches this code. So let's catch the exit:
 
@@ -905,6 +955,9 @@ ca5a: syscall
 ```
 
 This is the fail block. It also explains our strange exit code. `exit` takes its code from RDI, but the code does not set RDI. RDI still holds the address of the string, so the lowest byte of this address is the exit code. So 30 (036) was not a real exit code. It changes when the address of the string changes.
+
+## Recovering the second argument
+{: #recovering-the-second-argument}
 
 The rest of the code has the same pattern again and again:
 
@@ -1011,6 +1064,9 @@ The first two characters are `l1`, the same as our manual result. Good. We found
 ```text
 l1nhax.hurt.u5.a1l@flare-on.com
 ```
+
+## The reverse shell
+{: #the-reverse-shell}
 
 Before we finish, let's look at the code after the 31 checks:
 
